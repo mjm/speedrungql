@@ -1,7 +1,7 @@
 scalar Cursor
 
 interface Node {
-  id: String!
+  id: ID!
 }
 
 type Query {
@@ -9,6 +9,13 @@ type Query {
 }
 
 type Viewer {
+  games(
+    filter: GameFilter
+    order: GameOrder
+    first: Int
+    after: Cursor
+  ): GameConnection!
+
   platforms(
     order: PlatformOrder
     first: Int
@@ -26,6 +33,79 @@ type PageInfo {
 enum OrderDirection {
   ASC
   DESC
+}
+
+input GameFilter {
+  name: String
+  # TODO add the remaining filters for games
+}
+
+input GameOrder {
+  field: GameOrderField
+  direction: OrderDirection
+}
+
+enum GameOrderField {
+  NAME_INT
+  NAME_JAP
+  ABBREVIATION
+  RELEASED
+  CREATED
+  SIMILARITY
+}
+
+type GameConnection {
+  edges: [GameEdge!]!
+  nodes: [Game!]!
+  pageInfo: PageInfo!
+}
+
+type GameEdge {
+  node: Game!
+  cursor: Cursor
+}
+
+type Game implements Node {
+  id: ID!
+  names: GameNames!
+  abbreviation: String
+  weblink: String!
+  releaseDate: String!
+  ruleset: GameRuleset!
+
+  platforms: [Platform!]!
+  # TODO regions
+}
+
+type GameNames {
+  international: String!
+  japanese: String
+  twitch: String
+}
+
+type GameRuleset {
+  showMilliseconds: Boolean!
+  requireVerification: Boolean!
+  requireVideo: Boolean!
+  runTimes: [GameRunTime!]!
+  defaultRunTime: GameRunTime!
+  emulatorsAllowed: Boolean!
+}
+
+enum GameRunTime {
+  REALTIME
+  REALTIME_NOLOADS
+  INGAME
+}
+
+type GameModerator {
+  # TODO user
+  role: GameModeratorRole!
+}
+
+enum GameModeratorRole {
+  MODERATOR
+  SUPER_MODERATOR
 }
 
 input PlatformOrder {
@@ -50,7 +130,7 @@ type PlatformEdge {
 }
 
 type Platform implements Node {
-  id: String!
+  id: ID!
   name: String!
   released: Int!
 }

@@ -1,91 +1,97 @@
 package resolvers
 
 import (
-  "context"
-  "encoding/json"
-  "net/http"
+	"context"
+	"encoding/json"
+	"net/http"
 
-  "github.com/mjm/speedrungql"
+	"github.com/mjm/graphql-go"
+	"github.com/mjm/graphql-go/relay"
+
+	"github.com/mjm/speedrungql"
 )
 
 type Resolvers struct {
-  baseURL    string
-  httpClient http.Client
+	baseURL    string
+	httpClient http.Client
 }
 
 func New(baseURL string) *Resolvers {
-  return &Resolvers{
-    baseURL:    baseURL,
-    httpClient: http.Client{},
-  }
+	return &Resolvers{
+		baseURL:    baseURL,
+		httpClient: http.Client{},
+	}
 }
 
 func (r *Resolvers) Viewer() *Viewer {
-  return &Viewer{r: r}
+	return &Viewer{r: r}
 }
 
 type Viewer struct {
-  r *Resolvers
+	r *Resolvers
 }
 
-func (v *Viewer) Platforms(ctx context.Context, args struct{
-  Order *struct{
-    Field *string
-    Direction *string
-  }
-  First *int32
-  After *Cursor
+func (v *Viewer) Platforms(ctx context.Context, args struct {
+	Order *struct {
+		Field     *string
+		Direction *string
+	}
+	First *int32
+	After *Cursor
 }) (*PlatformConnection, error) {
-  u := v.r.baseURL + "/platforms"
-  res, err := v.r.httpClient.Get(u)
-  if err != nil {
-    return nil, err
-  }
-  defer res.Body.Close()
+	u := v.r.baseURL + "/platforms"
+	res, err := v.r.httpClient.Get(u)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
 
-  var resp speedrungql.PlatformsResponse
-  if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-    return nil, err
-  }
+	var resp speedrungql.PlatformsResponse
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		return nil, err
+	}
 
-  return &PlatformConnection{res: &resp}, nil
+	return &PlatformConnection{res: &resp}, nil
 }
 
 type PlatformConnection struct {
-  res *speedrungql.PlatformsResponse
+	res *speedrungql.PlatformsResponse
 }
 
 func (pc *PlatformConnection) Edges() []*PlatformEdge {
-  var edges []*PlatformEdge
-  for _, p := range pc.res.Data {
-    edges = append(edges, &PlatformEdge{
-      Node: &Platform{p},
-    })
-  }
-  return edges
+	var edges []*PlatformEdge
+	for _, p := range pc.res.Data {
+		edges = append(edges, &PlatformEdge{
+			Node: &Platform{p},
+		})
+	}
+	return edges
 }
 
 func (pc *PlatformConnection) Nodes() []*Platform {
-  var nodes []*Platform
-  for _, p := range pc.res.Data {
-    nodes = append(nodes, &Platform{p})
-  }
-  return nodes
+	var nodes []*Platform
+	for _, p := range pc.res.Data {
+		nodes = append(nodes, &Platform{p})
+	}
+	return nodes
 }
 
 func (pc *PlatformConnection) PageInfo() PageInfo {
-  return PageInfo{}
+	return PageInfo{}
 }
 
 type PlatformEdge struct {
-  Node *Platform
+	Node *Platform
 }
 
 func (pe *PlatformEdge) Cursor() *Cursor {
-  return nil
+	return nil
 }
 
 type Platform struct {
-  speedrungql.Platform
+	speedrungql.Platform
 }
 
+func (p *Platform) ID() graphql.ID {
+	return relay.MarshalID("platform", p.Platform.ID)
+}
