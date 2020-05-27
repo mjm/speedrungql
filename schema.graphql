@@ -1,0 +1,56 @@
+scalar Cursor
+
+interface Node {
+  id: String!
+}
+
+type Query {
+  viewer: Viewer
+}
+
+type Viewer {
+  platforms(
+    order: PlatformOrder
+    first: Int
+    after: Cursor
+  ): PlatformConnection!
+}
+
+type PageInfo {
+  startCursor: Cursor
+  endCursor: Cursor
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+input PlatformOrder {
+  field: PlatformOrderField
+  direction: OrderDirection
+}
+
+enum PlatformOrderField {
+  NAME
+  RELEASED
+}
+
+type PlatformConnection {
+  edges: [PlatformEdge!]!
+  nodes: [Platform!]!
+  pageInfo: PageInfo!
+}
+
+type PlatformEdge {
+  node: Platform!
+  cursor: Cursor
+}
+
+type Platform implements Node {
+  id: String!
+  name: String!
+  released: Int!
+}
