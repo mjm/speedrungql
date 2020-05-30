@@ -77,9 +77,16 @@ func (l *Leaderboard) Timing() GameRunTime {
 	return GameRunTime(l.Leaderboard.Timing)
 }
 
-func (l *Leaderboard) Runs() []*PlacedRun {
+func (l *Leaderboard) Runs(args struct {
+	First int32
+}) []*PlacedRun {
+	max := int32(len(l.Leaderboard.Runs))
+	if max > args.First {
+		max = args.First
+	}
+
 	var runs []*PlacedRun
-	for _, r := range l.Leaderboard.Runs {
+	for _, r := range l.Leaderboard.Runs[:max] {
 		runs = append(runs, &PlacedRun{r, l.client})
 	}
 	return runs

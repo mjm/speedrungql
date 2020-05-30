@@ -155,7 +155,10 @@ type Leaderboard {
   game: Game!
   category: Category!
   timing: GameRunTime!
-  runs: [PlacedRun!]!
+
+  runs(
+    first: Int = 3
+  ): [PlacedRun!]!
 }
 
 type PlacedRun {
