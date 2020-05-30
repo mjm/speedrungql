@@ -51,6 +51,7 @@ type Link {
 
 type Category implements Node {
   id: ID!
+  rawID: String!
   name: String!
   weblink: String!
   type: CategoryType!
@@ -106,6 +107,7 @@ type GameEdge {
 
 type Game implements Node {
   id: ID!
+  rawID: String!
   names: GameNames!
   abbreviation: String
   weblink: String!
@@ -184,12 +186,14 @@ type PlatformEdge {
 
 type Platform implements Node {
   id: ID!
+  rawID: String!
   name: String!
   released: Int!
 }
 
 type Run implements Node {
   id: ID!
+  rawID: String!
   game: Game!
   category: Category!
   videos: RunVideos
@@ -219,6 +223,7 @@ type RunVideos {
 
 type User implements Node {
   id: ID!
+  rawID: String!
   names: UserNames!
   weblink: String!
   nameStyle: UserNameStyle!

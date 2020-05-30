@@ -82,3 +82,7 @@ type Platform struct {
 func (p *Platform) ID() graphql.ID {
 	return relay.MarshalID("platform", p.Platform.ID)
 }
+
+func (p *Platform) RawID() string {
+	return p.Platform.ID
+}

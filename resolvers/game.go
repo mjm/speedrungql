@@ -97,6 +97,10 @@ func (g *Game) ID() graphql.ID {
 	return relay.MarshalID("game", g.Game.ID)
 }
 
+func (g *Game) RawID() string {
+	return g.Game.ID
+}
+
 func (g *Game) Names() *GameNames {
 	return &GameNames{g.Game.Names}
 }

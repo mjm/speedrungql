@@ -15,6 +15,10 @@ func (u *User) ID() graphql.ID {
 	return relay.MarshalID("user", u.User.ID)
 }
 
+func (u *User) RawID() string {
+	return u.User.ID
+}
+
 func (u *User) Names() *UserNames {
 	return &UserNames{u.User.Names}
 }

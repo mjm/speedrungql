@@ -15,6 +15,10 @@ func (c *Category) ID() graphql.ID {
 	return relay.MarshalID("category", c.Category.ID)
 }
 
+func (c *Category) RawID() string {
+	return c.Category.ID
+}
+
 func (c *Category) Type() string {
 	switch c.Category.Type {
 	case "per-game":

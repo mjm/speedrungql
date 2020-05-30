@@ -18,6 +18,10 @@ func (r *Run) ID() graphql.ID {
 	return relay.MarshalID("run", r.Run.ID)
 }
 
+func (r *Run) RawID() string {
+	return r.Run.ID
+}
+
 func (r *Run) Game(ctx context.Context) (*Game, error) {
 	return nil, nil
 }
