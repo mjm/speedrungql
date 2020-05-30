@@ -85,6 +85,30 @@ func (r *Run) Players() []*RunPlayer {
 	return rps
 }
 
+func (r *Run) Time(args struct {
+	Timing *GameRunTime
+}) *float64 {
+	var t float64
+
+	if args.Timing == nil {
+		t = r.Times.Primary
+	} else {
+		switch speedrungql.GameRunTime(*args.Timing) {
+		case speedrungql.RealTime:
+			t = r.Times.RealTime
+		case speedrungql.RealTimeNoLoads:
+			t = r.Times.RealTimeNoLoads
+		case speedrungql.InGame:
+			t = r.Times.InGame
+		}
+	}
+
+	if t == 0 {
+		return nil
+	}
+	return &t
+}
+
 type RunStatus struct {
 	speedrungql.RunStatus
 	client *speedrungql.Client

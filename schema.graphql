@@ -202,6 +202,8 @@ type Run implements Node {
   date: String
   submitted: String
   players: [RunPlayer!]!
+
+  time(timing: GameRunTime): Float
 }
 
 type RunStatus {

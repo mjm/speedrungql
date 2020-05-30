@@ -134,6 +134,7 @@ type Run struct {
 	Date       string      `json:"date"`
 	Submitted  string      `json:"submitted"`
 	Players    []RunPlayer `json:"players"`
+	Times      RunTimes    `json:"times"`
 }
 
 type RunVideos struct {
@@ -169,6 +170,13 @@ const (
 	PlayerUser  RunPlayerRel = "user"
 	PlayerGuest RunPlayerRel = "guest"
 )
+
+type RunTimes struct {
+	Primary         float64 `json:"primary_t"`
+	RealTime        float64 `json:"realtime_t"`
+	RealTimeNoLoads float64 `json:"realtime_noloads_t"`
+	InGame          float64 `json:"ingame_t"`
+}
 
 type User struct {
 	ID            string        `json:"id"`
