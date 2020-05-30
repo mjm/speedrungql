@@ -1,4 +1,5 @@
 scalar Cursor
+scalar Time
 
 interface Node {
   id: ID!
@@ -21,6 +22,12 @@ type Viewer {
     first: Int
     after: Cursor
   ): PlatformConnection!
+
+  leaderboard(
+    game: ID!
+    category: ID!
+    level: ID
+  ): Leaderboard
 }
 
 type PageInfo {
@@ -35,7 +42,12 @@ enum OrderDirection {
   DESC
 }
 
-type Category {
+type Link {
+  rel: String
+  uri: String!
+}
+
+type Category implements Node {
   id: ID!
   name: String!
   weblink: String!
@@ -135,6 +147,18 @@ enum GameModeratorRole {
   SUPER_MODERATOR
 }
 
+type Leaderboard {
+  game: Game!
+  category: Category!
+  timing: GameRunTime!
+  runs: [PlacedRun!]!
+}
+
+type PlacedRun {
+  place: Int!
+  run: Run!
+}
+
 input PlatformOrder {
   field: PlatformOrderField
   direction: OrderDirection
@@ -160,4 +184,33 @@ type Platform implements Node {
   id: ID!
   name: String!
   released: Int!
+}
+
+type Run implements Node {
+  id: ID!
+  game: Game!
+  category: Category!
+  videos: RunVideos
+  comment: String!
+  status: RunStatus!
+  date: String
+  submitted: String
+}
+
+type RunStatus {
+  status: RunStatusValue!
+  # TODO examiner
+  verifyDate: Time
+  reason: String
+}
+
+enum RunStatusValue {
+  NEW
+  VERIFIED
+  REJECTED
+}
+
+type RunVideos {
+  text: String
+  links: [Link!]!
 }

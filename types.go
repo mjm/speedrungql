@@ -2,6 +2,7 @@ package speedrungql
 
 import (
 	"encoding/json"
+	"time"
 )
 
 type EnvelopeResponse struct {
@@ -83,4 +84,43 @@ type Platform struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Released int32  `json:"released"`
+}
+
+type LeaderboardResponse struct {
+	Data *Leaderboard `json:"data"`
+}
+
+type Leaderboard struct {
+	GameID     string      `json:"game"`
+	CategoryID string      `json:"category"`
+	Timing     string      `json:"timing"`
+	Runs       []PlacedRun `json:"runs"`
+}
+
+type PlacedRun struct {
+	Place int  `json:"place"`
+	Run   *Run `json:"run"`
+}
+
+type Run struct {
+	ID         string     `json:"id"`
+	GameID     string     `json:"game"`
+	CategoryID string     `json:"category"`
+	Videos     *RunVideos `json:"videos"`
+	Comment    string     `json:"comment"`
+	Status     RunStatus  `json:"status"`
+	Date       string     `json:"date"`
+	Submitted  string     `json:"submitted"`
+}
+
+type RunVideos struct {
+	Text  string `json:"text"`
+	Links []Link `json:"links"`
+}
+
+type RunStatus struct {
+	Status     string     `json:"status"`
+	ExaminerID string     `json:"examiner"`
+	VerifyDate *time.Time `json:"verify-date"`
+	Reason     string     `json:"reason"`
 }
