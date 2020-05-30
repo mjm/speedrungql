@@ -48,11 +48,29 @@ type Leaderboard struct {
 }
 
 func (l *Leaderboard) Game(ctx context.Context) (*Game, error) {
-	return nil, nil
+	g, err := l.client.GetGame(ctx, l.GameID)
+	if err != nil {
+		return nil, err
+	}
+
+	if g == nil {
+		return nil, nil
+	}
+
+	return &Game{*g, l.client}, nil
 }
 
 func (l *Leaderboard) Category(ctx context.Context) (*Category, error) {
-	return nil, nil
+	c, err := l.client.GetCategory(ctx, l.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	if c == nil {
+		return nil, nil
+	}
+
+	return &Category{*c}, nil
 }
 
 func (l *Leaderboard) Runs() []*PlacedRun {

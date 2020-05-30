@@ -23,11 +23,29 @@ func (r *Run) RawID() string {
 }
 
 func (r *Run) Game(ctx context.Context) (*Game, error) {
-	return nil, nil
+	g, err := r.client.GetGame(ctx, r.GameID)
+	if err != nil {
+		return nil, err
+	}
+
+	if g == nil {
+		return nil, nil
+	}
+
+	return &Game{*g, r.client}, nil
 }
 
 func (r *Run) Category(ctx context.Context) (*Category, error) {
-	return nil, nil
+	c, err := r.client.GetCategory(ctx, r.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	if c == nil {
+		return nil, nil
+	}
+
+	return &Category{*c}, nil
 }
 
 func (r *Run) Videos() *RunVideos {
