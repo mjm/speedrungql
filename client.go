@@ -30,6 +30,15 @@ func (c *Client) createLoaders() {
 	})
 }
 
+func (c *Client) ListPlatforms(ctx context.Context, opts ...FetchOption) ([]*Platform, *PageInfo, error) {
+	var resp PlatformsResponse
+	if err := c.fetch(ctx, "/platforms", &resp, opts...); err != nil {
+		return nil, nil, err
+	}
+
+	return resp.Data, resp.Pagination, nil
+}
+
 func (c *Client) GetPlatform(ctx context.Context, id string) (*Platform, error) {
 	var platform Platform
 	if err := c.loadItem(ctx, c.platformLoader, id, &platform); err != nil {

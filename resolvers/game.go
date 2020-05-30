@@ -59,8 +59,8 @@ func (gc *GameConnection) Nodes() []*Game {
 	return nodes
 }
 
-func (gc *GameConnection) PageInfo() PageInfo {
-	return PageInfo{}
+func (gc *GameConnection) PageInfo() *PageInfo {
+	return &PageInfo{}
 }
 
 type GameEdge struct {

@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -31,35 +30,43 @@ type Viewer struct {
 func (v *Viewer) Platforms(ctx context.Context, args struct {
 	Order *struct {
 		Field     *string
-		Direction *string
+		Direction *speedrungql.OrderDirection
 	}
 	First *int32
 	After *Cursor
 }) (*PlatformConnection, error) {
-	u := v.client.BaseURL + "/platforms"
-	res, err := v.client.HTTPClient.Get(u)
+	opts := []speedrungql.FetchOption{
+		speedrungql.WithOrder(args.Order.Field, args.Order.Direction),
+	}
+	if args.First != nil {
+		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+	}
+	if args.After != nil {
+		offset, err := args.After.GetOffset()
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, speedrungql.WithOffset(offset))
+	}
+
+	plats, pageInfo, err := v.client.ListPlatforms(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	var resp speedrungql.PlatformsResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		return nil, err
-	}
-
-	return &PlatformConnection{res: &resp}, nil
+	return &PlatformConnection{plats, pageInfo}, nil
 }
 
 type PlatformConnection struct {
-	res *speedrungql.PlatformsResponse
+	platforms []*speedrungql.Platform
+	pageInfo  *speedrungql.PageInfo
 }
 
 func (pc *PlatformConnection) Edges() []*PlatformEdge {
 	var edges []*PlatformEdge
-	for _, p := range pc.res.Data {
+	for _, p := range pc.platforms {
 		edges = append(edges, &PlatformEdge{
-			Node: &Platform{p},
+			Node: &Platform{*p},
 		})
 	}
 	return edges
@@ -67,14 +74,14 @@ func (pc *PlatformConnection) Edges() []*PlatformEdge {
 
 func (pc *PlatformConnection) Nodes() []*Platform {
 	var nodes []*Platform
-	for _, p := range pc.res.Data {
-		nodes = append(nodes, &Platform{p})
+	for _, p := range pc.platforms {
+		nodes = append(nodes, &Platform{*p})
 	}
 	return nodes
 }
 
-func (pc *PlatformConnection) PageInfo() PageInfo {
-	return PageInfo{}
+func (pc *PlatformConnection) PageInfo() *PageInfo {
+	return &PageInfo{pc.pageInfo}
 }
 
 type PlatformEdge struct {

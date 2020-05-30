@@ -5,7 +5,20 @@ import (
 )
 
 type EnvelopeResponse struct {
-	Data json.RawMessage `json:"data"`
+	Data       json.RawMessage `json:"data"`
+	Pagination *PageInfo       `json:"pagination"`
+}
+
+type PageInfo struct {
+	Offset int    `json:"offset"`
+	Max    int    `json:"max"`
+	Size   int    `json:"size"`
+	Links  []Link `json:"links"`
+}
+
+type Link struct {
+	Rel string `json:"rel"`
+	URI string `json:"uri"`
 }
 
 type GamesResponse struct {
@@ -38,7 +51,8 @@ type GameRuleset struct {
 }
 
 type PlatformsResponse struct {
-	Data []Platform `json:"data"`
+	Data       []*Platform `json:"data"`
+	Pagination *PageInfo   `json:"pagination"`
 }
 
 type PlatformResponse struct {
