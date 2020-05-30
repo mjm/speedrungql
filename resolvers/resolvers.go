@@ -3,7 +3,6 @@ package resolvers
 import (
 	"context"
 	"encoding/json"
-	"net/http"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -12,23 +11,21 @@ import (
 )
 
 type Resolvers struct {
-	baseURL    string
-	httpClient http.Client
+	client *speedrungql.Client
 }
 
 func New(baseURL string) *Resolvers {
 	return &Resolvers{
-		baseURL:    baseURL,
-		httpClient: http.Client{},
+		client: speedrungql.NewClient(baseURL),
 	}
 }
 
 func (r *Resolvers) Viewer() *Viewer {
-	return &Viewer{r: r}
+	return &Viewer{client: r.client}
 }
 
 type Viewer struct {
-	r *Resolvers
+	client *speedrungql.Client
 }
 
 func (v *Viewer) Platforms(ctx context.Context, args struct {
@@ -39,8 +36,8 @@ func (v *Viewer) Platforms(ctx context.Context, args struct {
 	First *int32
 	After *Cursor
 }) (*PlatformConnection, error) {
-	u := v.r.baseURL + "/platforms"
-	res, err := v.r.httpClient.Get(u)
+	u := v.client.BaseURL + "/platforms"
+	res, err := v.client.HTTPClient.Get(u)
 	if err != nil {
 		return nil, err
 	}

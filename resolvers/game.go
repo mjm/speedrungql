@@ -21,8 +21,8 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 	First *int32
 	After *Cursor
 }) (*GameConnection, error) {
-	u := v.r.baseURL + "/games"
-	res, err := v.r.httpClient.Get(u)
+	u := v.client.BaseURL + "/games"
+	res, err := v.client.HTTPClient.Get(u)
 	if err != nil {
 		return nil, err
 	}
@@ -33,18 +33,19 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	return &GameConnection{res: &resp}, nil
+	return &GameConnection{res: &resp, client: v.client}, nil
 }
 
 type GameConnection struct {
-	res *speedrungql.GamesResponse
+	res    *speedrungql.GamesResponse
+	client *speedrungql.Client
 }
 
 func (gc *GameConnection) Edges() []*GameEdge {
 	var edges []*GameEdge
 	for _, g := range gc.res.Data {
 		edges = append(edges, &GameEdge{
-			Node: &Game{g},
+			Node: &Game{g, gc.client},
 		})
 	}
 	return edges
@@ -53,7 +54,7 @@ func (gc *GameConnection) Edges() []*GameEdge {
 func (gc *GameConnection) Nodes() []*Game {
 	var nodes []*Game
 	for _, g := range gc.res.Data {
-		nodes = append(nodes, &Game{g})
+		nodes = append(nodes, &Game{g, gc.client})
 	}
 	return nodes
 }
@@ -72,6 +73,7 @@ func (*GameEdge) Cursor() *Cursor {
 
 type Game struct {
 	speedrungql.Game
+	client *speedrungql.Client
 }
 
 func (g *Game) ID() graphql.ID {
@@ -89,8 +91,18 @@ func (g *Game) Abbreviation() *string {
 	return &g.Game.Abbreviation
 }
 
-func (g *Game) Platforms(ctx context.Context) []*Platform {
-	return nil
+func (g *Game) Platforms(ctx context.Context) ([]*Platform, error) {
+	plats, err := g.client.GetPlatforms(ctx, g.Game.Platforms)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Platform
+	for _, plat := range plats {
+		res = append(res, &Platform{*plat})
+	}
+
+	return res, nil
 }
 
 type GameNames struct {

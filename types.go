@@ -1,5 +1,13 @@
 package speedrungql
 
+import (
+	"encoding/json"
+)
+
+type EnvelopeResponse struct {
+	Data json.RawMessage `json:"data"`
+}
+
 type GamesResponse struct {
 	Data []Game `json:"data"`
 }
@@ -31,6 +39,10 @@ type GameRuleset struct {
 
 type PlatformsResponse struct {
 	Data []Platform `json:"data"`
+}
+
+type PlatformResponse struct {
+	Data Platform `json:"data"`
 }
 
 type Platform struct {
