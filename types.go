@@ -44,13 +44,21 @@ type GameNames struct {
 }
 
 type GameRuleset struct {
-	ShowMilliseconds    bool     `json:"show-milliseconds"`
-	RequireVerification bool     `json:"require-verification"`
-	RequireVideo        bool     `json:"require-video"`
-	RunTimes            []string `json:"run-times"`
-	DefaultRunTime      string   `json:"default-time"`
-	EmulatorsAllowed    bool     `json:"emulators-allowed"`
+	ShowMilliseconds    bool          `json:"show-milliseconds"`
+	RequireVerification bool          `json:"require-verification"`
+	RequireVideo        bool          `json:"require-video"`
+	RunTimes            []GameRunTime `json:"run-times"`
+	DefaultRunTime      GameRunTime   `json:"default-time"`
+	EmulatorsAllowed    bool          `json:"emulators-allowed"`
 }
+
+type GameRunTime string
+
+const (
+	RealTime        GameRunTime = "realtime"
+	RealTimeNoLoads GameRunTime = "realtime_noloads"
+	InGame          GameRunTime = "ingame"
+)
 
 type CategoriesResponse struct {
 	Data []*Category `json:"data"`
@@ -60,16 +68,30 @@ type Category struct {
 	ID            string          `json:"id"`
 	Name          string          `json:"name"`
 	Weblink       string          `json:"weblink"`
-	Type          string          `json:"type"`
+	Type          CategoryType    `json:"type"`
 	Rules         string          `json:"rules"`
 	Players       CategoryPlayers `json:"players"`
 	Miscellaneous bool            `json:"miscellaneous"`
 }
 
+type CategoryType string
+
+const (
+	CategoryPerGame  CategoryType = "per-game"
+	CategoryPerLevel CategoryType = "per-level"
+)
+
 type CategoryPlayers struct {
-	Type  string `json:"type"`
-	Value int    `json:"value"`
+	Type  CategoryPlayersType `json:"type"`
+	Value int                 `json:"value"`
 }
+
+type CategoryPlayersType string
+
+const (
+	PlayersExactly CategoryPlayersType = "exactly"
+	PlayersUpTo    CategoryPlayersType = "up-to"
+)
 
 type PlatformsResponse struct {
 	Data       []*Platform `json:"data"`
@@ -93,7 +115,7 @@ type LeaderboardResponse struct {
 type Leaderboard struct {
 	GameID     string      `json:"game"`
 	CategoryID string      `json:"category"`
-	Timing     string      `json:"timing"`
+	Timing     GameRunTime `json:"timing"`
 	Runs       []PlacedRun `json:"runs"`
 }
 
@@ -119,18 +141,26 @@ type RunVideos struct {
 }
 
 type RunStatus struct {
-	Status     string     `json:"status"`
-	ExaminerID string     `json:"examiner"`
-	VerifyDate *time.Time `json:"verify-date"`
-	Reason     string     `json:"reason"`
+	Status     RunStatusValue `json:"status"`
+	ExaminerID string         `json:"examiner"`
+	VerifyDate *time.Time     `json:"verify-date"`
+	Reason     string         `json:"reason"`
 }
+
+type RunStatusValue string
+
+const (
+	RunNew      RunStatusValue = "new"
+	RunVerified RunStatusValue = "verified"
+	RunRejected RunStatusValue = "rejected"
+)
 
 type User struct {
 	ID            string        `json:"id"`
 	Names         UserNames     `json:"names"`
 	Weblink       string        `json:"weblink"`
 	NameStyle     UserNameStyle `json:"name-style"`
-	Role          string        `json:"role"`
+	Role          UserRole      `json:"role"`
 	Signup        *time.Time    `json:"signup"`
 	Twitch        *Link         `json:"twitch"`
 	Hitbox        *Link         `json:"hitbox"`
@@ -145,13 +175,31 @@ type UserNames struct {
 }
 
 type UserNameStyle struct {
-	Style     string `json:"style"`
-	Color     *Color `json:"color"`
-	FromColor *Color `json:"color-from"`
-	ToColor   *Color `json:"color-to"`
+	Style     UserNameStyleValue `json:"style"`
+	Color     *Color             `json:"color"`
+	FromColor *Color             `json:"color-from"`
+	ToColor   *Color             `json:"color-to"`
 }
+
+type UserNameStyleValue string
+
+const (
+	StyleSolid    UserNameStyleValue = "solid"
+	StyleGradient UserNameStyleValue = "gradient"
+)
 
 type Color struct {
 	Light string `json:"light"`
 	Dark  string `json:"dark"`
 }
+
+type UserRole string
+
+const (
+	RoleUser       UserRole = "user"
+	RoleBanned     UserRole = "banned"
+	RoleTrusted    UserRole = "trusted"
+	RoleModerator  UserRole = "moderator"
+	RoleAdmin      UserRole = "admin"
+	RoleProgrammer UserRole = "programmer"
+)

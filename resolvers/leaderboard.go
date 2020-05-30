@@ -73,6 +73,10 @@ func (l *Leaderboard) Category(ctx context.Context) (*Category, error) {
 	return &Category{*c}, nil
 }
 
+func (l *Leaderboard) Timing() GameRunTime {
+	return GameRunTime(l.Leaderboard.Timing)
+}
+
 func (l *Leaderboard) Runs() []*PlacedRun {
 	var runs []*PlacedRun
 	for _, r := range l.Leaderboard.Runs {

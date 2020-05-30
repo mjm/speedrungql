@@ -2,6 +2,9 @@ package resolvers
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -79,17 +82,8 @@ type RunStatus struct {
 	client *speedrungql.Client
 }
 
-func (rs *RunStatus) Status() string {
-	switch rs.RunStatus.Status {
-	case "new":
-		return "NEW"
-	case "verified":
-		return "VERIFIED"
-	case "rejected":
-		return "REJECTED"
-	default:
-		return ""
-	}
+func (rs *RunStatus) Status() RunStatusValue {
+	return RunStatusValue(rs.RunStatus.Status)
 }
 
 func (rs *RunStatus) Examiner(ctx context.Context) (*User, error) {
@@ -122,6 +116,36 @@ func (rs *RunStatus) Reason() *string {
 		return nil
 	}
 	return &rs.RunStatus.Reason
+}
+
+type RunStatusValue speedrungql.RunStatusValue
+
+func (RunStatusValue) ImplementsGraphQLType(name string) bool {
+	return name == "RunStatusValue"
+}
+
+func (v RunStatusValue) String() string {
+	return strings.ToUpper(string(v))
+}
+
+func (v *RunStatusValue) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("RunStatusValue value was not a string")
+	}
+
+	switch s {
+	case "NEW":
+		*v = RunStatusValue(speedrungql.RunNew)
+	case "VERIFIED":
+		*v = RunStatusValue(speedrungql.RunVerified)
+	case "REJECTED":
+		*v = RunStatusValue(speedrungql.RunRejected)
+	default:
+		return fmt.Errorf("unknown RunStatusValue value %q", s)
+	}
+
+	return nil
 }
 
 type RunVideos struct {

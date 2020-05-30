@@ -1,6 +1,8 @@
 package resolvers
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/mjm/graphql-go"
@@ -29,8 +31,8 @@ func (u *User) NameStyle() *UserNameStyle {
 	return &UserNameStyle{u.User.NameStyle}
 }
 
-func (u *User) Role() string {
-	return strings.ToUpper(u.User.Role)
+func (u *User) Role() UserRole {
+	return UserRole(u.User.Role)
 }
 
 func (u *User) Signup() *graphql.Time {
@@ -77,7 +79,7 @@ type UserNameStyle struct {
 }
 
 func (uns *UserNameStyle) ToSolidUserNameStyle() (*SolidUserNameStyle, bool) {
-	if uns.Style != "solid" {
+	if uns.Style != speedrungql.StyleSolid {
 		return nil, false
 	}
 
@@ -85,7 +87,7 @@ func (uns *UserNameStyle) ToSolidUserNameStyle() (*SolidUserNameStyle, bool) {
 }
 
 func (uns *UserNameStyle) ToGradientUserNameStyle() (*GradientUserNameStyle, bool) {
-	if uns.Style != "gradient" {
+	if uns.Style != speedrungql.StyleGradient {
 		return nil, false
 	}
 
@@ -98,4 +100,40 @@ type SolidUserNameStyle struct {
 
 type GradientUserNameStyle struct {
 	speedrungql.UserNameStyle
+}
+
+type UserRole speedrungql.UserRole
+
+func (UserRole) ImplementsGraphQLType(name string) bool {
+	return name == "UserRole"
+}
+
+func (v UserRole) String() string {
+	return strings.ToUpper(string(v))
+}
+
+func (v *UserRole) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("UserRole value was not a string")
+	}
+
+	switch s {
+	case "USER":
+		*v = UserRole(speedrungql.RoleUser)
+	case "BANNED":
+		*v = UserRole(speedrungql.RoleBanned)
+	case "TRUSTED":
+		*v = UserRole(speedrungql.RoleTrusted)
+	case "MODERATOR":
+		*v = UserRole(speedrungql.RoleModerator)
+	case "ADMIN":
+		*v = UserRole(speedrungql.RoleAdmin)
+	case "PROGRAMMER":
+		*v = UserRole(speedrungql.RoleProgrammer)
+	default:
+		return fmt.Errorf("unknown UserRole value %q", s)
+	}
+
+	return nil
 }

@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/mjm/graphql-go"
@@ -166,14 +168,44 @@ type GameRuleset struct {
 	speedrungql.GameRuleset
 }
 
-func (gr *GameRuleset) RunTimes() []string {
-	var rts []string
+func (gr *GameRuleset) RunTimes() []GameRunTime {
+	var rts []GameRunTime
 	for _, rt := range gr.GameRuleset.RunTimes {
-		rts = append(rts, strings.ToUpper(rt))
+		rts = append(rts, GameRunTime(rt))
 	}
 	return rts
 }
 
-func (gr *GameRuleset) DefaultRunTime() string {
-	return strings.ToUpper(gr.GameRuleset.DefaultRunTime)
+func (gr *GameRuleset) DefaultRunTime() GameRunTime {
+	return GameRunTime(gr.GameRuleset.DefaultRunTime)
+}
+
+type GameRunTime speedrungql.GameRunTime
+
+func (GameRunTime) ImplementsGraphQLType(name string) bool {
+	return name == "GameRunTime"
+}
+
+func (v GameRunTime) String() string {
+	return strings.ToUpper(string(v))
+}
+
+func (v *GameRunTime) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("GameRunTime value was not a string")
+	}
+
+	switch s {
+	case "REALTIME":
+		*v = GameRunTime(speedrungql.RealTime)
+	case "REALTIME_NOLOADS":
+		*v = GameRunTime(speedrungql.RealTimeNoLoads)
+	case "INGAME":
+		*v = GameRunTime(speedrungql.InGame)
+	default:
+		return fmt.Errorf("unknown GameRunTime value %q", s)
+	}
+
+	return nil
 }
