@@ -1,6 +1,8 @@
 package resolvers
 
 import (
+	"strings"
+
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
@@ -25,6 +27,10 @@ func (u *User) Names() *UserNames {
 
 func (u *User) NameStyle() *UserNameStyle {
 	return &UserNameStyle{u.User.NameStyle}
+}
+
+func (u *User) Role() string {
+	return strings.ToUpper(u.User.Role)
 }
 
 func (u *User) Signup() *graphql.Time {

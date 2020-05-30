@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -112,6 +113,10 @@ func (g *Game) Abbreviation() *string {
 	return &g.Game.Abbreviation
 }
 
+func (g *Game) Ruleset() *GameRuleset {
+	return &GameRuleset{g.Game.Ruleset}
+}
+
 func (g *Game) Platforms(ctx context.Context) ([]*Platform, error) {
 	plats, err := g.client.GetPlatforms(ctx, g.Game.Platforms)
 	if err != nil {
@@ -155,4 +160,20 @@ func (gn *GameNames) Twitch() *string {
 		return nil
 	}
 	return &gn.GameNames.Twitch
+}
+
+type GameRuleset struct {
+	speedrungql.GameRuleset
+}
+
+func (gr *GameRuleset) RunTimes() []string {
+	var rts []string
+	for _, rt := range gr.GameRuleset.RunTimes {
+		rts = append(rts, strings.ToUpper(rt))
+	}
+	return rts
+}
+
+func (gr *GameRuleset) DefaultRunTime() string {
+	return strings.ToUpper(gr.GameRuleset.DefaultRunTime)
 }
