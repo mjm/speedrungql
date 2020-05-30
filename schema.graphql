@@ -118,6 +118,7 @@ type Game implements Node {
   # TODO regions
 
   categories: [Category!]!
+  moderators: [GameModerator!]!
 }
 
 type GameNames {
@@ -142,7 +143,7 @@ enum GameRunTime {
 }
 
 type GameModerator {
-  # TODO user
+  user: User!
   role: GameModeratorRole!
 }
 

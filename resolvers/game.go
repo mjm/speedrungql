@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/mjm/graphql-go"
@@ -146,6 +147,22 @@ func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
 	return res, nil
 }
 
+func (g *Game) Moderators() []*GameModerator {
+	var gms []*GameModerator
+	for userID, role := range g.Game.Moderators {
+		gms = append(gms, &GameModerator{
+			userID: userID,
+			role:   role,
+			client: g.client,
+		})
+	}
+
+	sort.Slice(gms, func(i, j int) bool {
+		return gms[i].userID < gms[j].userID
+	})
+	return gms
+}
+
 type GameNames struct {
 	speedrungql.GameNames
 }
@@ -205,6 +222,60 @@ func (v *GameRunTime) UnmarshalGraphQL(input interface{}) error {
 		*v = GameRunTime(speedrungql.InGame)
 	default:
 		return fmt.Errorf("unknown GameRunTime value %q", s)
+	}
+
+	return nil
+}
+
+type GameModerator struct {
+	userID string
+	role   speedrungql.GameModeratorRole
+	client *speedrungql.Client
+}
+
+func (gm *GameModerator) User(ctx context.Context) (*User, error) {
+	user, err := gm.client.GetUser(ctx, gm.userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &User{*user}, nil
+}
+
+func (gm *GameModerator) Role() GameModeratorRole {
+	return GameModeratorRole(gm.role)
+}
+
+type GameModeratorRole speedrungql.GameModeratorRole
+
+func (GameModeratorRole) ImplementsGraphQLType(name string) bool {
+	return name == "GameModeratorRole"
+}
+
+func (v GameModeratorRole) String() string {
+	switch speedrungql.GameModeratorRole(v) {
+	case speedrungql.Moderator:
+		return "MODERATOR"
+	case speedrungql.SuperModerator:
+		return "SUPER_MODERATOR"
+	default:
+		return ""
+	}
+}
+
+func (v *GameModeratorRole) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("GameModeratorRole value was not a string")
+	}
+
+	switch s {
+	case "MODERATOR":
+		*v = GameModeratorRole(speedrungql.Moderator)
+	case "SUPER_MODERATOR":
+		*v = GameModeratorRole(speedrungql.SuperModerator)
+	default:
+		return fmt.Errorf("unknown GameModeratorRole value %q", s)
 	}
 
 	return nil

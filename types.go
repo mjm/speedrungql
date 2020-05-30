@@ -28,13 +28,14 @@ type GamesResponse struct {
 }
 
 type Game struct {
-	ID           string      `json:"id"`
-	Names        GameNames   `json:"names"`
-	Abbreviation string      `json:"abbreviation"`
-	Weblink      string      `json:"weblink"`
-	ReleaseDate  string      `json:"release-date"`
-	Ruleset      GameRuleset `json:"ruleset"`
-	Platforms    []string    `json:"platforms"`
+	ID           string                       `json:"id"`
+	Names        GameNames                    `json:"names"`
+	Abbreviation string                       `json:"abbreviation"`
+	Weblink      string                       `json:"weblink"`
+	ReleaseDate  string                       `json:"release-date"`
+	Ruleset      GameRuleset                  `json:"ruleset"`
+	Platforms    []string                     `json:"platforms"`
+	Moderators   map[string]GameModeratorRole `json:"moderators"`
 }
 
 type GameNames struct {
@@ -58,6 +59,13 @@ const (
 	RealTime        GameRunTime = "realtime"
 	RealTimeNoLoads GameRunTime = "realtime_noloads"
 	InGame          GameRunTime = "ingame"
+)
+
+type GameModeratorRole string
+
+const (
+	Moderator      GameModeratorRole = "moderator"
+	SuperModerator GameModeratorRole = "super-moderator"
 )
 
 type CategoriesResponse struct {
