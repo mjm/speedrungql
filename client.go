@@ -10,7 +10,10 @@ type Client struct {
 	HTTPClient *http.Client
 	BaseURL    string
 
+	categoryLoader *dataloader.Loader
+	gameLoader     *dataloader.Loader
 	platformLoader *dataloader.Loader
+	runLoader      *dataloader.Loader
 	userLoader     *dataloader.Loader
 }
 
@@ -24,7 +27,10 @@ func NewClient(baseURL string) *Client {
 }
 
 func (c *Client) createLoaders() {
+	c.categoryLoader = c.newCategoryLoader()
+	c.gameLoader = c.newGameLoader()
 	c.platformLoader = c.newPlatformLoader()
+	c.runLoader = c.newRunLoader()
 	c.userLoader = c.newUserLoader()
 }
 

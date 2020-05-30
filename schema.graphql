@@ -7,6 +7,8 @@ interface Node {
 
 type Query {
   viewer: Viewer
+
+  node(id: ID!): Node
 }
 
 type Viewer {
