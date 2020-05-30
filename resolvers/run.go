@@ -11,6 +11,7 @@ import (
 
 type Run struct {
 	speedrungql.Run
+	client *speedrungql.Client
 }
 
 func (r *Run) ID() graphql.ID {
@@ -34,7 +35,7 @@ func (r *Run) Videos() *RunVideos {
 }
 
 func (r *Run) Status() *RunStatus {
-	return &RunStatus{r.Run.Status}
+	return &RunStatus{r.Run.Status, r.client}
 }
 
 func (r *Run) Date() *string {
@@ -53,6 +54,7 @@ func (r *Run) Submitted() *string {
 
 type RunStatus struct {
 	speedrungql.RunStatus
+	client *speedrungql.Client
 }
 
 func (rs *RunStatus) Status() string {
@@ -66,6 +68,23 @@ func (rs *RunStatus) Status() string {
 	default:
 		return ""
 	}
+}
+
+func (rs *RunStatus) Examiner(ctx context.Context) (*User, error) {
+	if rs.ExaminerID == "" {
+		return nil, nil
+	}
+
+	user, err := rs.client.GetUser(ctx, rs.ExaminerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, nil
+	}
+
+	return &User{*user}, nil
 }
 
 func (rs *RunStatus) VerifyDate() *graphql.Time {

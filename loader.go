@@ -55,6 +55,6 @@ func (c *Client) loadItem(ctx context.Context, loader *dataloader.Loader, id str
 		return err
 	}
 
-	data := res.([]byte)
+	data := res.(*EnvelopeResponse).Data
 	return json.Unmarshal(data, result)
 }

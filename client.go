@@ -11,6 +11,7 @@ type Client struct {
 	BaseURL    string
 
 	platformLoader *dataloader.Loader
+	userLoader     *dataloader.Loader
 }
 
 func NewClient(baseURL string) *Client {
@@ -23,9 +24,8 @@ func NewClient(baseURL string) *Client {
 }
 
 func (c *Client) createLoaders() {
-	c.platformLoader = c.newLoader(func(key dataloader.Key) string {
-		return "/platforms/" + key.String()
-	})
+	c.platformLoader = c.newPlatformLoader()
+	c.userLoader = c.newUserLoader()
 }
 
 func keysFromIDs(ids []string) dataloader.Keys {

@@ -39,11 +39,12 @@ func (v *Viewer) Leaderboard(ctx context.Context, args struct {
 		return nil, nil
 	}
 
-	return &Leaderboard{*lb}, nil
+	return &Leaderboard{*lb, v.client}, nil
 }
 
 type Leaderboard struct {
 	speedrungql.Leaderboard
+	client *speedrungql.Client
 }
 
 func (l *Leaderboard) Game(ctx context.Context) (*Game, error) {
@@ -57,13 +58,14 @@ func (l *Leaderboard) Category(ctx context.Context) (*Category, error) {
 func (l *Leaderboard) Runs() []*PlacedRun {
 	var runs []*PlacedRun
 	for _, r := range l.Leaderboard.Runs {
-		runs = append(runs, &PlacedRun{r})
+		runs = append(runs, &PlacedRun{r, l.client})
 	}
 	return runs
 }
 
 type PlacedRun struct {
 	speedrungql.PlacedRun
+	client *speedrungql.Client
 }
 
 func (pr *PlacedRun) Place() int32 {
@@ -71,5 +73,5 @@ func (pr *PlacedRun) Place() int32 {
 }
 
 func (pr *PlacedRun) Run() *Run {
-	return &Run{*pr.PlacedRun.Run}
+	return &Run{*pr.PlacedRun.Run, pr.client}
 }

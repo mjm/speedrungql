@@ -3,7 +3,15 @@ package speedrungql
 import (
 	"context"
 	"encoding/json"
+
+	"github.com/graph-gophers/dataloader"
 )
+
+func (c *Client) newPlatformLoader() *dataloader.Loader {
+	return c.newLoader(func(key dataloader.Key) string {
+		return "/platforms/" + key.String()
+	})
+}
 
 func (c *Client) ListPlatforms(ctx context.Context, opts ...FetchOption) ([]*Platform, *PageInfo, error) {
 	var resp PlatformsResponse

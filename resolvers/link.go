@@ -14,3 +14,11 @@ func (l *Link) Rel() *string {
 	}
 	return &l.Link.Rel
 }
+
+func wrapLink(link *speedrungql.Link) *Link {
+	if link == nil {
+		return nil
+	}
+
+	return &Link{*link}
+}

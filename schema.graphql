@@ -199,7 +199,7 @@ type Run implements Node {
 
 type RunStatus {
   status: RunStatusValue!
-  # TODO examiner
+  examiner: User
   verifyDate: Time
   reason: String
 }
@@ -213,4 +213,49 @@ enum RunStatusValue {
 type RunVideos {
   text: String
   links: [Link!]!
+}
+
+type User implements Node {
+  id: ID!
+  names: UserNames!
+  weblink: String!
+  nameStyle: UserNameStyle!
+  role: UserRole!
+  signup: Time
+  # TODO location
+  twitch: Link
+  hitbox: Link
+  youtube: Link
+  twitter: Link
+  speedrunslive: Link
+}
+
+type UserNames {
+  international: String!
+  japanese: String
+}
+
+union UserNameStyle = SolidUserNameStyle | GradientUserNameStyle
+
+type SolidUserNameStyle {
+  color: Color!
+}
+
+type GradientUserNameStyle {
+  fromColor: Color!
+  toColor: Color!
+}
+
+type Color {
+  light: String!
+  dark: String!
+}
+
+enum UserRole {
+  USER
+  BANNED
+  TRUSTED
+  MODERATOR
+  ADMIN
+  PROGRAMMER
 }

@@ -124,3 +124,34 @@ type RunStatus struct {
 	VerifyDate *time.Time `json:"verify-date"`
 	Reason     string     `json:"reason"`
 }
+
+type User struct {
+	ID            string        `json:"id"`
+	Names         UserNames     `json:"names"`
+	Weblink       string        `json:"weblink"`
+	NameStyle     UserNameStyle `json:"name-style"`
+	Role          string        `json:"role"`
+	Signup        *time.Time    `json:"signup"`
+	Twitch        *Link         `json:"twitch"`
+	Hitbox        *Link         `json:"hitbox"`
+	YouTube       *Link         `json:"youtube"`
+	Twitter       *Link         `json:"twitter"`
+	SpeedRunsLive *Link         `json:"speedrunslive"`
+}
+
+type UserNames struct {
+	International string `json:"international"`
+	Japanese      string `json:"japanese"`
+}
+
+type UserNameStyle struct {
+	Style     string `json:"style"`
+	Color     *Color `json:"color"`
+	FromColor *Color `json:"color-from"`
+	ToColor   *Color `json:"color-to"`
+}
+
+type Color struct {
+	Light string `json:"light"`
+	Dark  string `json:"dark"`
+}
