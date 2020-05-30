@@ -35,6 +35,31 @@ enum OrderDirection {
   DESC
 }
 
+type Category {
+  id: ID!
+  name: String!
+  weblink: String!
+  type: CategoryType!
+  rules: String!
+  players: CategoryPlayers!
+  miscellaneous: Boolean!
+}
+
+enum CategoryType {
+  PER_GAME
+  PER_LEVEL
+}
+
+type CategoryPlayers {
+  type: CategoryPlayersType!
+  value: Int!
+}
+
+enum CategoryPlayersType {
+  EXACTLY
+  UP_TO
+}
+
 input GameFilter {
   name: String
   # TODO add the remaining filters for games
@@ -75,6 +100,8 @@ type Game implements Node {
 
   platforms: [Platform!]!
   # TODO regions
+
+  categories: [Category!]!
 }
 
 type GameNames {

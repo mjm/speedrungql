@@ -122,6 +122,19 @@ func (g *Game) Platforms(ctx context.Context) ([]*Platform, error) {
 	return res, nil
 }
 
+func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
+	cats, err := g.client.ListGameCategories(ctx, g.Game.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Category
+	for _, cat := range cats {
+		res = append(res, &Category{*cat})
+	}
+	return res, nil
+}
+
 type GameNames struct {
 	speedrungql.GameNames
 }
