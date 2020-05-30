@@ -98,3 +98,8 @@ func (n *Node) ToUser() (*User, bool) {
 	u, ok := n.nodeResolver.(*User)
 	return u, ok
 }
+
+func (n *Node) ToVariable() (*Variable, bool) {
+	v, ok := n.nodeResolver.(*Variable)
+	return v, ok
+}

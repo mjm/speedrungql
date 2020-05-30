@@ -234,3 +234,48 @@ const (
 	RoleAdmin      UserRole = "admin"
 	RoleProgrammer UserRole = "programmer"
 )
+
+type VariablesResponse struct {
+	Data []*Variable `json:"data"`
+}
+
+type Variable struct {
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	CategoryID    string         `json:"category"`
+	Scope         VariableScope  `json:"scope"`
+	Mandatory     bool           `json:"mandatory"`
+	UserDefined   bool           `json:"user-defined"`
+	Obsoletes     bool           `json:"obsoletes"`
+	Values        VariableValues `json:"values"`
+	IsSubcategory bool           `json:"is-subcategory"`
+}
+
+type VariableScope struct {
+	Type    VariableScopeType `json:"type"`
+	LevelID string            `json:"level"`
+}
+
+type VariableScopeType string
+
+const (
+	ScopeGlobal      VariableScopeType = "global"
+	ScopeFullGame    VariableScopeType = "full-game"
+	ScopeAllLevels   VariableScopeType = "all-levels"
+	ScopeSingleLevel VariableScopeType = "single-level"
+)
+
+type VariableValues struct {
+	Values  map[string]VariableValue `json:"values"`
+	Default string                   `json:"default"`
+}
+
+type VariableValue struct {
+	Label string              `json:"label"`
+	Rules string              `json:"rules"`
+	Flags *VariableValueFlags `json:"flags"`
+}
+
+type VariableValueFlags struct {
+	Miscellaneous bool `json:"miscellaneous"`
+}

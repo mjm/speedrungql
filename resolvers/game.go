@@ -179,6 +179,19 @@ func (g *Game) Moderators() []*GameModerator {
 	return gms
 }
 
+func (g *Game) Variables(ctx context.Context) ([]*Variable, error) {
+	vs, err := g.client.ListGameVariables(ctx, g.Game.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Variable
+	for _, v := range vs {
+		res = append(res, &Variable{*v, g.client})
+	}
+	return res, nil
+}
+
 type GameRuleset struct {
 	speedrungql.GameRuleset
 }

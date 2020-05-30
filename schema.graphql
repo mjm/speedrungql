@@ -119,6 +119,7 @@ type Game implements Node {
 
   categories: [Category!]!
   moderators: [GameModerator!]!
+  variables: [Variable!]!
 }
 
 enum GameNameVariant {
@@ -282,4 +283,39 @@ enum UserRole {
   MODERATOR
   ADMIN
   PROGRAMMER
+}
+
+type Variable implements Node {
+  id: ID!
+  rawID: String!
+  name: String!
+  category: Category
+  scope: VariableScopeType!
+  # TODO level
+  mandatory: Boolean!
+  userDefined: Boolean!
+  obsoletes: Boolean!
+  isSubcategory: Boolean!
+
+  values: [VariableValue!]!
+  defaultValue: VariableValue
+  value(id: ID!): VariableValue
+}
+
+enum VariableScopeType {
+  GLOBAL
+  FULL_GAME
+  ALL_LEVELS
+  SINGLE_LEVEL
+}
+
+type VariableValue {
+  id: ID!
+  label: String!
+  rules: String
+  flags: VariableValueFlags
+}
+
+type VariableValueFlags {
+  miscellaneous: Boolean!
 }
