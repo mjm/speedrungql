@@ -125,14 +125,15 @@ type PlacedRun struct {
 }
 
 type Run struct {
-	ID         string     `json:"id"`
-	GameID     string     `json:"game"`
-	CategoryID string     `json:"category"`
-	Videos     *RunVideos `json:"videos"`
-	Comment    string     `json:"comment"`
-	Status     RunStatus  `json:"status"`
-	Date       string     `json:"date"`
-	Submitted  string     `json:"submitted"`
+	ID         string      `json:"id"`
+	GameID     string      `json:"game"`
+	CategoryID string      `json:"category"`
+	Videos     *RunVideos  `json:"videos"`
+	Comment    string      `json:"comment"`
+	Status     RunStatus   `json:"status"`
+	Date       string      `json:"date"`
+	Submitted  string      `json:"submitted"`
+	Players    []RunPlayer `json:"players"`
 }
 
 type RunVideos struct {
@@ -153,6 +154,20 @@ const (
 	RunNew      RunStatusValue = "new"
 	RunVerified RunStatusValue = "verified"
 	RunRejected RunStatusValue = "rejected"
+)
+
+type RunPlayer struct {
+	Rel  RunPlayerRel `json:"rel"`
+	ID   string       `json:"id"`
+	Name string       `json:"name"`
+	URI  string       `json:"uri"`
+}
+
+type RunPlayerRel string
+
+const (
+	PlayerUser  RunPlayerRel = "user"
+	PlayerGuest RunPlayerRel = "guest"
 )
 
 type User struct {

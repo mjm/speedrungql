@@ -77,6 +77,14 @@ func (r *Run) Submitted() *string {
 	return &r.Run.Submitted
 }
 
+func (r *Run) Players() []*RunPlayer {
+	var rps []*RunPlayer
+	for _, rp := range r.Run.Players {
+		rps = append(rps, &RunPlayer{rp, r.client})
+	}
+	return rps
+}
+
 type RunStatus struct {
 	speedrungql.RunStatus
 	client *speedrungql.Client
@@ -165,4 +173,47 @@ func (rv *RunVideos) Links() []*Link {
 		links = append(links, &Link{l})
 	}
 	return links
+}
+
+type RunPlayer struct {
+	speedrungql.RunPlayer
+	client *speedrungql.Client
+}
+
+func (rp *RunPlayer) ToUserRunPlayer() (*UserRunPlayer, bool) {
+	if rp.Rel != speedrungql.PlayerUser {
+		return nil, false
+	}
+
+	return &UserRunPlayer{rp.RunPlayer, rp.client}, true
+}
+
+func (rp *RunPlayer) ToGuestRunPlayer() (*GuestRunPlayer, bool) {
+	if rp.Rel != speedrungql.PlayerGuest {
+		return nil, false
+	}
+
+	return &GuestRunPlayer{rp.RunPlayer}, true
+}
+
+type UserRunPlayer struct {
+	speedrungql.RunPlayer
+	client *speedrungql.Client
+}
+
+func (urp *UserRunPlayer) User(ctx context.Context) (*User, error) {
+	user, err := urp.client.GetUser(ctx, urp.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, nil
+	}
+
+	return &User{*user}, nil
+}
+
+type GuestRunPlayer struct {
+	speedrungql.RunPlayer
 }

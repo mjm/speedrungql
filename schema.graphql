@@ -201,6 +201,7 @@ type Run implements Node {
   status: RunStatus!
   date: String
   submitted: String
+  players: [RunPlayer!]!
 }
 
 type RunStatus {
@@ -219,6 +220,16 @@ enum RunStatusValue {
 type RunVideos {
   text: String
   links: [Link!]!
+}
+
+union RunPlayer = UserRunPlayer | GuestRunPlayer
+
+type UserRunPlayer {
+  user: User
+}
+
+type GuestRunPlayer {
+  name: String!
 }
 
 type User implements Node {
