@@ -105,8 +105,24 @@ func (g *Game) RawID() string {
 	return g.Game.ID
 }
 
-func (g *Game) Names() *GameNames {
-	return &GameNames{g.Game.Names}
+func (g *Game) Name(args struct {
+	Variant string
+}) *string {
+	var s string
+
+	switch args.Variant {
+	case "INTERNATIONAL":
+		s = g.Names.International
+	case "JAPANESE":
+		s = g.Names.Japanese
+	case "TWITCH":
+		s = g.Names.Twitch
+	}
+
+	if s == "" {
+		return nil
+	}
+	return &s
 }
 
 func (g *Game) Abbreviation() *string {
@@ -161,24 +177,6 @@ func (g *Game) Moderators() []*GameModerator {
 		return gms[i].userID < gms[j].userID
 	})
 	return gms
-}
-
-type GameNames struct {
-	speedrungql.GameNames
-}
-
-func (gn *GameNames) Japanese() *string {
-	if gn.GameNames.Japanese == "" {
-		return nil
-	}
-	return &gn.GameNames.Japanese
-}
-
-func (gn *GameNames) Twitch() *string {
-	if gn.GameNames.Twitch == "" {
-		return nil
-	}
-	return &gn.GameNames.Twitch
 }
 
 type GameRuleset struct {

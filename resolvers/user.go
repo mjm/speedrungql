@@ -23,8 +23,22 @@ func (u *User) RawID() string {
 	return u.User.ID
 }
 
-func (u *User) Names() *UserNames {
-	return &UserNames{u.User.Names}
+func (u *User) Name(args struct {
+	Variant string
+}) *string {
+	var s string
+
+	switch args.Variant {
+	case "INTERNATIONAL":
+		s = u.Names.International
+	case "JAPANESE":
+		s = u.Names.Japanese
+	}
+
+	if s == "" {
+		return nil
+	}
+	return &s
 }
 
 func (u *User) NameStyle() *UserNameStyle {

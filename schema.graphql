@@ -108,7 +108,7 @@ type GameEdge {
 type Game implements Node {
   id: ID!
   rawID: String!
-  names: GameNames!
+  name(variant: GameNameVariant = INTERNATIONAL): String
   abbreviation: String
   weblink: String!
   releaseDate: String!
@@ -121,10 +121,10 @@ type Game implements Node {
   moderators: [GameModerator!]!
 }
 
-type GameNames {
-  international: String!
-  japanese: String
-  twitch: String
+enum GameNameVariant {
+  INTERNATIONAL
+  JAPANESE
+  TWITCH
 }
 
 type GameRuleset {
@@ -241,7 +241,7 @@ type GuestRunPlayer {
 type User implements Node {
   id: ID!
   rawID: String!
-  names: UserNames!
+  name(variant: UserNameVariant = INTERNATIONAL): String
   weblink: String!
   nameStyle: UserNameStyle!
   role: UserRole!
@@ -254,9 +254,9 @@ type User implements Node {
   speedrunslive: Link
 }
 
-type UserNames {
-  international: String!
-  japanese: String
+enum UserNameVariant {
+  INTERNATIONAL
+  JAPANESE
 }
 
 union UserNameStyle = SolidUserNameStyle | GradientUserNameStyle
