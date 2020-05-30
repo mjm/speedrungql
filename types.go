@@ -22,7 +22,8 @@ type Link struct {
 }
 
 type GamesResponse struct {
-	Data []Game `json:"data"`
+	Data       []*Game   `json:"data"`
+	Pagination *PageInfo `json:"pagination"`
 }
 
 type Game struct {

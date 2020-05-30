@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -16,36 +15,54 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 	}
 	Order *struct {
 		Field     *string
-		Direction *string
+		Direction *speedrungql.OrderDirection
 	}
 	First *int32
 	After *Cursor
 }) (*GameConnection, error) {
-	u := v.client.BaseURL + "/games"
-	res, err := v.client.HTTPClient.Get(u)
+	var opts []speedrungql.FetchOption
+	if args.Order != nil {
+		opts = append(opts, speedrungql.WithOrder(args.Order.Field, args.Order.Direction))
+	}
+	if args.Filter != nil {
+		if args.Filter.Name != nil {
+			opts = append(opts, speedrungql.WithFilter("name", *args.Filter.Name))
+		}
+	}
+	if args.First != nil {
+		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+	}
+	if args.After != nil {
+		offset, err := args.After.GetOffset()
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, speedrungql.WithOffset(offset))
+	}
+
+	games, pageInfo, err := v.client.ListGames(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	var resp speedrungql.GamesResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		return nil, err
-	}
-
-	return &GameConnection{res: &resp, client: v.client}, nil
+	return &GameConnection{
+		client:   v.client,
+		games:    games,
+		pageInfo: pageInfo,
+	}, nil
 }
 
 type GameConnection struct {
-	res    *speedrungql.GamesResponse
-	client *speedrungql.Client
+	client   *speedrungql.Client
+	games    []*speedrungql.Game
+	pageInfo *speedrungql.PageInfo
 }
 
 func (gc *GameConnection) Edges() []*GameEdge {
 	var edges []*GameEdge
-	for _, g := range gc.res.Data {
+	for _, g := range gc.games {
 		edges = append(edges, &GameEdge{
-			Node: &Game{g, gc.client},
+			Node: &Game{*g, gc.client},
 		})
 	}
 	return edges
@@ -53,14 +70,14 @@ func (gc *GameConnection) Edges() []*GameEdge {
 
 func (gc *GameConnection) Nodes() []*Game {
 	var nodes []*Game
-	for _, g := range gc.res.Data {
-		nodes = append(nodes, &Game{g, gc.client})
+	for _, g := range gc.games {
+		nodes = append(nodes, &Game{*g, gc.client})
 	}
 	return nodes
 }
 
 func (gc *GameConnection) PageInfo() *PageInfo {
-	return &PageInfo{}
+	return &PageInfo{gc.pageInfo}
 }
 
 type GameEdge struct {
