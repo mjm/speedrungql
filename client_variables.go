@@ -22,6 +22,14 @@ func (c *Client) ListCategoryVariables(ctx context.Context, categoryID string) (
 	return resp.Data, nil
 }
 
+func (c *Client) ListLevelVariables(ctx context.Context, levelID string) ([]*Variable, error) {
+	var resp VariablesResponse
+	if err := c.fetch(ctx, fmt.Sprintf("/levels/%s/variables", levelID), &resp); err != nil {
+		return nil, err
+	}
+	return resp.Data, nil
+}
+
 func (c *Client) GetVariable(ctx context.Context, variableID string) (*Variable, error) {
 	var v Variable
 	if err := c.loadItem(ctx, c.variableKey(variableID), &v); err != nil {

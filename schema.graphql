@@ -179,6 +179,9 @@ type Level implements Node {
   game: Game
   weblink: String!
   rules: String!
+
+  categories: [Category!]!
+  variables: [Variable!]!
 }
 
 input PlatformOrder {

@@ -38,3 +38,29 @@ func (l *Level) Game(ctx context.Context) (*Game, error) {
 	}
 	return &Game{*game, l.client}, nil
 }
+
+func (l *Level) Categories(ctx context.Context) ([]*Category, error) {
+	cats, err := l.client.ListLevelCategories(ctx, l.Level.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Category
+	for _, cat := range cats {
+		res = append(res, &Category{*cat, l.client})
+	}
+	return res, nil
+}
+
+func (l *Level) Variables(ctx context.Context) ([]*Variable, error) {
+	vars, err := l.client.ListLevelVariables(ctx, l.Level.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Variable
+	for _, v := range vars {
+		res = append(res, &Variable{*v, l.client})
+	}
+	return res, nil
+}

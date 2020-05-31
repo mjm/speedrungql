@@ -15,6 +15,15 @@ func (c *Client) ListGameCategories(ctx context.Context, gameID string, opts ...
 	return resp.Data, nil
 }
 
+func (c *Client) ListLevelCategories(ctx context.Context, levelID string, opts ...FetchOption) ([]*Category, error) {
+	var resp CategoriesResponse
+	if err := c.fetch(ctx, fmt.Sprintf("/levels/%s/categories", levelID), &resp, opts...); err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}
+
 func (c *Client) GetCategory(ctx context.Context, categoryID string) (*Category, error) {
 	var category Category
 	if err := c.loadItem(ctx, c.categoryKey(categoryID), &category); err != nil {
