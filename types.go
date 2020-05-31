@@ -147,6 +147,11 @@ type PlacedRun struct {
 	Run   *Run `json:"run"`
 }
 
+type RunsResponse struct {
+	Data       []*Run    `json:"data"`
+	Pagination *PageInfo `json:"pagination"`
+}
+
 type Run struct {
 	ID         string            `json:"id"`
 	GameID     string            `json:"game"`

@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
+
+	"github.com/mjm/graphql-go"
+	"github.com/mjm/graphql-go/relay"
 )
 
 type OrderDirection string
@@ -48,6 +52,12 @@ func WithFilter(field string, value interface{}) FetchOption {
 	}
 }
 
+func WithFilters(filters interface{}) FetchOption {
+	return func(r *request) {
+		r.filters = append(r.filters, filtersFromStruct(filters)...)
+	}
+}
+
 func WithOrder(field *string, direction *OrderDirection) FetchOption {
 	return func(r *request) {
 		r.order = &requestOrder{
@@ -79,7 +89,16 @@ func (c *Client) fetch(ctx context.Context, path string, result interface{}, opt
 	values := url.Values{}
 
 	for _, filter := range r.filters {
-		values.Set(filter.field, fmt.Sprintf("%s", filter.value))
+		value := filter.value
+		if idVal, ok := value.(graphql.ID); ok {
+			if err := relay.UnmarshalSpec(idVal, &value); err != nil {
+				return err
+			}
+		} else if reflect.TypeOf(value).ConvertibleTo(reflect.TypeOf("")) {
+			// Our enums implement Stringer to give the GraphQL version, but we want the raw string for filter values
+			value = reflect.ValueOf(value).Convert(reflect.TypeOf("")).Interface()
+		}
+		values.Set(filter.field, fmt.Sprintf("%s", value))
 	}
 
 	if r.order != nil {
@@ -113,9 +132,52 @@ func (c *Client) fetch(ctx context.Context, path string, result interface{}, opt
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode > 299 {
+		return fmt.Errorf("unexpected status code for url %s: %d", u, res.StatusCode)
+	}
+
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func filtersFromStruct(val interface{}) []requestFilter {
+	var fs []requestFilter
+
+	t := reflect.TypeOf(val)
+	v := reflect.ValueOf(val)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		v = v.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		panic(fmt.Errorf("expected type %v to be a struct", t))
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		tag, ok := t.Field(i).Tag.Lookup("filter")
+		if !ok {
+			continue
+		}
+
+		fieldVal := v.Field(i)
+
+		if fieldVal.Kind() == reflect.Ptr {
+			// Skip unset values
+			if fieldVal.IsNil() {
+				continue
+			}
+
+			fieldVal = fieldVal.Elem()
+		}
+
+		fs = append(fs, requestFilter{
+			field: tag,
+			value: fieldVal.Interface(),
+		})
+	}
+
+	return fs
 }

@@ -25,6 +25,13 @@ type Viewer {
     after: Cursor
   ): PlatformConnection!
 
+  runs(
+    filter: RunFilter
+    order: RunOrder
+    first: Int
+    after: Cursor
+  ): RunConnection!
+
   leaderboard(
     game: ID!
     category: ID!
@@ -222,6 +229,48 @@ type Region implements Node {
   id: ID!
   rawID: String!
   name: String!
+}
+
+input RunFilter {
+  user: ID
+  guest: String
+  examiner: ID
+  game: ID
+  level: ID
+  category: ID
+  platform: ID
+  region: ID
+  emulated: Boolean
+  status: RunStatusValue
+}
+
+input RunOrder {
+  field: RunOrderField
+  direction: OrderDirection
+}
+
+enum RunOrderField {
+  GAME
+  CATEGORY
+  LEVEL
+  PLATFORM
+  REGION
+  EMULATED
+  DATE
+  SUBMITTED
+  STATUS
+  VERIFY_DATE
+}
+
+type RunConnection {
+  edges: [RunEdge!]!
+  nodes: [Run!]!
+  pageInfo: PageInfo!
+}
+
+type RunEdge {
+  node: Run!
+  cursor: Cursor
 }
 
 type Run implements Node {

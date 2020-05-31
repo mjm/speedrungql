@@ -12,6 +12,123 @@ import (
 	"github.com/mjm/speedrungql"
 )
 
+func (v *Viewer) Runs(ctx context.Context, args struct {
+	Filter *struct {
+		User     *graphql.ID     `filter:"user"`
+		Guest    *string         `filter:"guest"`
+		Examiner *graphql.ID     `filter:"examiner"`
+		Game     *graphql.ID     `filter:"game"`
+		Level    *graphql.ID     `filter:"level"`
+		Category *graphql.ID     `filter:"category"`
+		Platform *graphql.ID     `filter:"platform"`
+		Region   *graphql.ID     `filter:"region"`
+		Emulated *bool           `filter:"emulated"`
+		Status   *RunStatusValue `filter:"status"`
+	}
+	Order *struct {
+		Field     *RunOrderField
+		Direction *speedrungql.OrderDirection
+	}
+	First *int32
+	After *Cursor
+}) (*RunConnection, error) {
+	var opts []speedrungql.FetchOption
+	if args.Order != nil {
+		opts = append(opts, speedrungql.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+	}
+	if args.Filter != nil {
+		opts = append(opts, speedrungql.WithFilters(*args.Filter))
+		//if args.Filter.User != nil {
+		//	opts = append(opts, speedrungql.WithFilter("user", *args.Filter.User))
+		//}
+		//if args.Filter.Guest != nil {
+		//	opts = append(opts, speedrungql.WithFilter("guest", *args.Filter.Guest))
+		//}
+		//if args.Filter.Examiner != nil {
+		//	opts = append(opts, speedrungql.WithFilter("examiner"))
+		//}
+	}
+	if args.First != nil {
+		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+	}
+	if args.After != nil {
+		offset, err := args.After.GetOffset()
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, speedrungql.WithOffset(offset))
+	}
+
+	runs, pageInfo, err := v.client.ListRuns(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RunConnection{
+		client:   v.client,
+		runs:     runs,
+		pageInfo: pageInfo,
+	}, nil
+}
+
+type RunOrderField string
+
+func (RunOrderField) ImplementsGraphQLType(name string) bool {
+	return name == "RunOrderField"
+}
+
+func (v *RunOrderField) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("RunOrderField value was not a string")
+	}
+
+	switch s {
+	case "VERIFY_DATE":
+		*v = "verify-date"
+	default:
+		*v = RunOrderField(strings.ToLower(s))
+	}
+
+	return nil
+}
+
+type RunConnection struct {
+	client   *speedrungql.Client
+	runs     []*speedrungql.Run
+	pageInfo *speedrungql.PageInfo
+}
+
+func (rc *RunConnection) Edges() []*RunEdge {
+	var edges []*RunEdge
+	for _, r := range rc.runs {
+		edges = append(edges, &RunEdge{
+			Node: &Run{*r, rc.client},
+		})
+	}
+	return edges
+}
+
+func (rc *RunConnection) Nodes() []*Run {
+	var nodes []*Run
+	for _, r := range rc.runs {
+		nodes = append(nodes, &Run{*r, rc.client})
+	}
+	return nodes
+}
+
+func (rc *RunConnection) PageInfo() *PageInfo {
+	return &PageInfo{rc.pageInfo}
+}
+
+type RunEdge struct {
+	Node *Run
+}
+
+func (e *RunEdge) Cursor() *Cursor {
+	return nil
+}
+
 type Run struct {
 	speedrungql.Run
 	client *speedrungql.Client
