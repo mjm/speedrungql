@@ -249,6 +249,7 @@ type Variable struct {
 	Obsoletes     bool           `json:"obsoletes"`
 	Values        VariableValues `json:"values"`
 	IsSubcategory bool           `json:"is-subcategory"`
+	Links         []Link         `json:"links"`
 }
 
 type VariableScope struct {

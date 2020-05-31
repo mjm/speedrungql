@@ -290,6 +290,7 @@ type Variable implements Node {
   id: ID!
   rawID: String!
   name: String!
+  game: Game
   category: Category
   scope: VariableScopeType!
   # TODO level

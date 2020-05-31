@@ -25,6 +25,23 @@ func (v *Variable) RawID() string {
 	return v.Variable.ID
 }
 
+func (v *Variable) Game(ctx context.Context) (*Game, error) {
+	gameURI := speedrungql.FindLink(v.Links, "game")
+	if gameURI == "" {
+		return nil, nil
+	}
+
+	game, err := v.client.GetGame(ctx, gameURI)
+	if err != nil {
+		return nil, err
+	}
+
+	if game == nil {
+		return nil, nil
+	}
+	return &Game{*game, v.client}, nil
+}
+
 func (v *Variable) Category(ctx context.Context) (*Category, error) {
 	if v.CategoryID == "" {
 		return nil, nil

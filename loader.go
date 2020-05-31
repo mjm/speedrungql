@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"sync"
 
 	"github.com/graph-gophers/dataloader"
@@ -21,12 +20,7 @@ func (c *Client) newLoader() *dataloader.Loader {
 			go func(i int, key dataloader.Key) {
 				defer wg.Done()
 
-				u := key.String()
-				if !strings.HasPrefix(u, c.BaseURL) {
-					u = c.BaseURL + u
-				}
-
-				req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, key.String(), nil)
 				if err != nil {
 					results[i] = &dataloader.Result{Error: err}
 					return

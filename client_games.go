@@ -2,6 +2,8 @@ package speedrungql
 
 import (
 	"context"
+	"fmt"
+	"strings"
 )
 
 func (c *Client) ListGames(ctx context.Context, opts ...FetchOption) ([]*Game, *PageInfo, error) {
@@ -14,10 +16,16 @@ func (c *Client) ListGames(ctx context.Context, opts ...FetchOption) ([]*Game, *
 }
 
 func (c *Client) GetGame(ctx context.Context, gameID string) (*Game, error) {
-	path := "/games/" + gameID
 	var game Game
-	if err := c.loadItem(ctx, path, &game); err != nil {
+	if err := c.loadItem(ctx, c.gameKey(gameID), &game); err != nil {
 		return nil, err
 	}
 	return &game, nil
+}
+
+func (c *Client) gameKey(id string) string {
+	if strings.HasPrefix(id, c.BaseURL) {
+		return id
+	}
+	return fmt.Sprintf("%s/games/%s", c.BaseURL, id)
 }

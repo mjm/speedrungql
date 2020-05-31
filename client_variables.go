@@ -3,6 +3,7 @@ package speedrungql
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
 func (c *Client) ListGameVariables(ctx context.Context, gameID string) ([]*Variable, error) {
@@ -22,10 +23,16 @@ func (c *Client) ListCategoryVariables(ctx context.Context, categoryID string) (
 }
 
 func (c *Client) GetVariable(ctx context.Context, variableID string) (*Variable, error) {
-	path := "/variables/" + variableID
 	var v Variable
-	if err := c.loadItem(ctx, path, &v); err != nil {
+	if err := c.loadItem(ctx, c.variableKey(variableID), &v); err != nil {
 		return nil, err
 	}
 	return &v, nil
+}
+
+func (c *Client) variableKey(id string) string {
+	if strings.HasPrefix(id, c.BaseURL) {
+		return id
+	}
+	return fmt.Sprintf("%s/variables/%s", c.BaseURL, id)
 }

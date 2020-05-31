@@ -3,6 +3,8 @@ package speedrungql
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/graph-gophers/dataloader"
 )
@@ -17,9 +19,8 @@ func (c *Client) ListPlatforms(ctx context.Context, opts ...FetchOption) ([]*Pla
 }
 
 func (c *Client) GetPlatform(ctx context.Context, id string) (*Platform, error) {
-	path := "/platforms/" + id
 	var platform Platform
-	if err := c.loadItem(ctx, path, &platform); err != nil {
+	if err := c.loadItem(ctx, c.platformKey(id), &platform); err != nil {
 		return nil, err
 	}
 	return &platform, nil
@@ -32,7 +33,7 @@ func (c *Client) GetPlatforms(ctx context.Context, ids []string) ([]*Platform, e
 
 	var keys dataloader.Keys
 	for _, id := range ids {
-		keys = append(keys, dataloader.StringKey("/platforms/"+id))
+		keys = append(keys, dataloader.StringKey(c.platformKey(id)))
 	}
 
 	ress, errs := c.loader.LoadMany(ctx, keys)()
@@ -49,4 +50,11 @@ func (c *Client) GetPlatforms(ctx context.Context, ids []string) ([]*Platform, e
 		platforms = append(platforms, &platform)
 	}
 	return platforms, nil
+}
+
+func (c *Client) platformKey(id string) string {
+	if strings.HasPrefix(id, c.BaseURL) {
+		return id
+	}
+	return fmt.Sprintf("%s/platforms/%s", c.BaseURL, id)
 }
