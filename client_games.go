@@ -2,15 +2,7 @@ package speedrungql
 
 import (
 	"context"
-
-	"github.com/graph-gophers/dataloader"
 )
-
-func (c *Client) newGameLoader() *dataloader.Loader {
-	return c.newLoader(func(key dataloader.Key) string {
-		return "/games/" + key.String()
-	})
-}
 
 func (c *Client) ListGames(ctx context.Context, opts ...FetchOption) ([]*Game, *PageInfo, error) {
 	var resp GamesResponse
@@ -22,8 +14,9 @@ func (c *Client) ListGames(ctx context.Context, opts ...FetchOption) ([]*Game, *
 }
 
 func (c *Client) GetGame(ctx context.Context, gameID string) (*Game, error) {
+	path := "/games/" + gameID
 	var game Game
-	if err := c.loadItem(ctx, c.gameLoader, gameID, &game); err != nil {
+	if err := c.loadItem(ctx, path, &game); err != nil {
 		return nil, err
 	}
 	return &game, nil

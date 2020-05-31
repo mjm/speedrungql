@@ -7,12 +7,6 @@ import (
 	"github.com/graph-gophers/dataloader"
 )
 
-func (c *Client) newPlatformLoader() *dataloader.Loader {
-	return c.newLoader(func(key dataloader.Key) string {
-		return "/platforms/" + key.String()
-	})
-}
-
 func (c *Client) ListPlatforms(ctx context.Context, opts ...FetchOption) ([]*Platform, *PageInfo, error) {
 	var resp PlatformsResponse
 	if err := c.fetch(ctx, "/platforms", &resp, opts...); err != nil {
@@ -23,8 +17,9 @@ func (c *Client) ListPlatforms(ctx context.Context, opts ...FetchOption) ([]*Pla
 }
 
 func (c *Client) GetPlatform(ctx context.Context, id string) (*Platform, error) {
+	path := "/platforms/" + id
 	var platform Platform
-	if err := c.loadItem(ctx, c.platformLoader, id, &platform); err != nil {
+	if err := c.loadItem(ctx, path, &platform); err != nil {
 		return nil, err
 	}
 	return &platform, nil
@@ -35,7 +30,12 @@ func (c *Client) GetPlatforms(ctx context.Context, ids []string) ([]*Platform, e
 		return nil, nil
 	}
 
-	ress, errs := c.platformLoader.LoadMany(ctx, keysFromIDs(ids))()
+	var keys dataloader.Keys
+	for _, id := range ids {
+		keys = append(keys, dataloader.StringKey("/platforms/"+id))
+	}
+
+	ress, errs := c.loader.LoadMany(ctx, keys)()
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}

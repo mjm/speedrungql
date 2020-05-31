@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/graph-gophers/dataloader"
 )
 
-func (c *Client) newLoader(pathFn func(dataloader.Key) string) *dataloader.Loader {
+func (c *Client) newLoader() *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var wg sync.WaitGroup
 		results := make([]*dataloader.Result, len(keys))
@@ -20,7 +21,18 @@ func (c *Client) newLoader(pathFn func(dataloader.Key) string) *dataloader.Loade
 			go func(i int, key dataloader.Key) {
 				defer wg.Done()
 
-				res, err := http.Get(c.BaseURL + pathFn(key))
+				u := key.String()
+				if !strings.HasPrefix(u, c.BaseURL) {
+					u = c.BaseURL + u
+				}
+
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+				if err != nil {
+					results[i] = &dataloader.Result{Error: err}
+					return
+				}
+
+				res, err := c.HTTPClient.Do(req)
 				if err != nil {
 					results[i] = &dataloader.Result{Error: err}
 					return
@@ -49,8 +61,8 @@ func (c *Client) newLoader(pathFn func(dataloader.Key) string) *dataloader.Loade
 	})
 }
 
-func (c *Client) loadItem(ctx context.Context, loader *dataloader.Loader, id string, result interface{}) error {
-	res, err := loader.Load(ctx, dataloader.StringKey(id))()
+func (c *Client) loadItem(ctx context.Context, path string, result interface{}) error {
+	res, err := c.loader.Load(ctx, dataloader.StringKey(path))()
 	if err != nil {
 		return err
 	}
