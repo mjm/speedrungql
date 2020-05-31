@@ -51,6 +51,23 @@ func (r *Run) Category(ctx context.Context) (*Category, error) {
 	return &Category{*c, r.client}, nil
 }
 
+func (r *Run) Level(ctx context.Context) (*Level, error) {
+	if r.LevelID == "" {
+		return nil, nil
+	}
+
+	l, err := r.client.GetLevel(ctx, r.LevelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if l == nil {
+		return nil, nil
+	}
+
+	return &Level{*l, r.client}, nil
+}
+
 func (r *Run) Videos() *RunVideos {
 	if r.Run.Videos == nil {
 		return nil

@@ -103,6 +103,14 @@ const (
 	PlayersUpTo    CategoryPlayersType = "up-to"
 )
 
+type Level struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Weblink string `json:"weblink"`
+	Rules   string `json:"rules"`
+	Links   []Link `json:"link"`
+}
+
 type PlatformsResponse struct {
 	Data       []*Platform `json:"data"`
 	Pagination *PageInfo   `json:"pagination"`
@@ -138,6 +146,7 @@ type Run struct {
 	ID         string            `json:"id"`
 	GameID     string            `json:"game"`
 	CategoryID string            `json:"category"`
+	LevelID    string            `json:"level"`
 	Videos     *RunVideos        `json:"videos"`
 	Comment    string            `json:"comment"`
 	Status     RunStatus         `json:"status"`

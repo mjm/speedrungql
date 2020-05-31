@@ -37,6 +37,14 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 		if game != nil {
 			n = &Game{*game, r.client}
 		}
+	case "level":
+		level, err := r.client.GetLevel(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if level != nil {
+			n = &Level{*level, r.client}
+		}
 	case "platform":
 		plat, err := r.client.GetPlatform(ctx, id)
 		if err != nil {
@@ -98,6 +106,11 @@ func (n *Node) ToCategory() (*Category, bool) {
 func (n *Node) ToGame() (*Game, bool) {
 	g, ok := n.nodeResolver.(*Game)
 	return g, ok
+}
+
+func (n *Node) ToLevel() (*Level, bool) {
+	l, ok := n.nodeResolver.(*Level)
+	return l, ok
 }
 
 func (n *Node) ToPlatform() (*Platform, bool) {
