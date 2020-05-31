@@ -80,6 +80,7 @@ type Category struct {
 	Rules         string          `json:"rules"`
 	Players       CategoryPlayers `json:"players"`
 	Miscellaneous bool            `json:"miscellaneous"`
+	Links         []Link          `json:"links"`
 }
 
 type CategoryType string
