@@ -61,6 +61,14 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 		if user != nil {
 			n = &User{*user}
 		}
+	case "variable":
+		v, err := r.client.GetVariable(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if v != nil {
+			n = &Variable{*v, r.client}
+		}
 	}
 
 	if n == nil {

@@ -20,3 +20,12 @@ func (c *Client) ListCategoryVariables(ctx context.Context, categoryID string) (
 	}
 	return resp.Data, nil
 }
+
+func (c *Client) GetVariable(ctx context.Context, variableID string) (*Variable, error) {
+	path := "/variables/" + variableID
+	var v Variable
+	if err := c.loadItem(ctx, path, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
