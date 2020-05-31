@@ -27,7 +27,7 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 			return nil, err
 		}
 		if cat != nil {
-			n = &Category{*cat}
+			n = &Category{*cat, r.client}
 		}
 	case "game":
 		game, err := r.client.GetGame(ctx, id)

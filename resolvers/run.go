@@ -48,7 +48,7 @@ func (r *Run) Category(ctx context.Context) (*Category, error) {
 		return nil, nil
 	}
 
-	return &Category{*c}, nil
+	return &Category{*c, r.client}, nil
 }
 
 func (r *Run) Videos() *RunVideos {

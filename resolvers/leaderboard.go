@@ -70,7 +70,7 @@ func (l *Leaderboard) Category(ctx context.Context) (*Category, error) {
 		return nil, nil
 	}
 
-	return &Category{*c}, nil
+	return &Category{*c, l.client}, nil
 }
 
 func (l *Leaderboard) Timing() GameRunTime {

@@ -158,7 +158,7 @@ func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
 
 	var res []*Category
 	for _, cat := range cats {
-		res = append(res, &Category{*cat})
+		res = append(res, &Category{*cat, g.client})
 	}
 	return res, nil
 }

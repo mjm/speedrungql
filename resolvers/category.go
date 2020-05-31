@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -12,6 +13,7 @@ import (
 
 type Category struct {
 	speedrungql.Category
+	client *speedrungql.Client
 }
 
 func (c *Category) ID() graphql.ID {
@@ -28,6 +30,19 @@ func (c *Category) Type() CategoryType {
 
 func (c *Category) Players() *CategoryPlayers {
 	return &CategoryPlayers{c.Category.Players}
+}
+
+func (c *Category) Variables(ctx context.Context) ([]*Variable, error) {
+	vs, err := c.client.ListCategoryVariables(ctx, c.Category.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Variable
+	for _, v := range vs {
+		res = append(res, &Variable{*v, c.client})
+	}
+	return res, nil
 }
 
 type CategoryType speedrungql.CategoryType

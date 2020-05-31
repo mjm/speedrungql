@@ -39,7 +39,7 @@ func (v *Variable) Category(ctx context.Context) (*Category, error) {
 		return nil, nil
 	}
 
-	return &Category{*c}, nil
+	return &Category{*c, v.client}, nil
 }
 
 func (v *Variable) Scope() VariableScopeType {

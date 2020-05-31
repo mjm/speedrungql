@@ -58,6 +58,7 @@ type Category implements Node {
   rules: String!
   players: CategoryPlayers!
   miscellaneous: Boolean!
+  variables: [Variable!]!
 }
 
 enum CategoryType {
