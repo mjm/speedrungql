@@ -164,19 +164,6 @@ func (g *Game) Regions(ctx context.Context) ([]*Region, error) {
 	return res, nil
 }
 
-func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
-	cats, err := g.client.ListGameCategories(ctx, g.Game.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	var res []*Category
-	for _, cat := range cats {
-		res = append(res, &Category{*cat, g.client})
-	}
-	return res, nil
-}
-
 func (g *Game) Moderators() []*GameModerator {
 	var gms []*GameModerator
 	for userID, role := range g.Game.Moderators {
@@ -191,6 +178,32 @@ func (g *Game) Moderators() []*GameModerator {
 		return gms[i].userID < gms[j].userID
 	})
 	return gms
+}
+
+func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
+	cats, err := g.client.ListGameCategories(ctx, g.Game.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Category
+	for _, cat := range cats {
+		res = append(res, &Category{*cat, g.client})
+	}
+	return res, nil
+}
+
+func (g *Game) Levels(ctx context.Context) ([]*Level, error) {
+	levs, err := g.client.ListGameLevels(ctx, g.Game.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Level
+	for _, lev := range levs {
+		res = append(res, &Level{*lev, g.client})
+	}
+	return res, nil
 }
 
 func (g *Game) Variables(ctx context.Context) ([]*Variable, error) {

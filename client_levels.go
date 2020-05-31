@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+func (c *Client) ListGameLevels(ctx context.Context, gameID string) ([]*Level, error) {
+	var resp LevelsResponse
+	if err := c.fetch(ctx, fmt.Sprintf("/games/%s/levels", gameID), &resp); err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}
+
 func (c *Client) GetLevel(ctx context.Context, levelID string) (*Level, error) {
 	var level Level
 	if err := c.loadItem(ctx, c.levelKey(levelID), &level); err != nil {

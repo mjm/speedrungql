@@ -73,6 +73,23 @@ func (l *Leaderboard) Category(ctx context.Context) (*Category, error) {
 	return &Category{*c, l.client}, nil
 }
 
+func (l *Leaderboard) Level(ctx context.Context) (*Level, error) {
+	if l.LevelID == "" {
+		return nil, nil
+	}
+
+	lev, err := l.client.GetLevel(ctx, l.LevelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if lev == nil {
+		return nil, nil
+	}
+
+	return &Level{*lev, l.client}, nil
+}
+
 func (l *Leaderboard) Timing() GameRunTime {
 	return GameRunTime(l.Leaderboard.Timing)
 }

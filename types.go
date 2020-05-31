@@ -103,6 +103,10 @@ const (
 	PlayersUpTo    CategoryPlayersType = "up-to"
 )
 
+type LevelsResponse struct {
+	Data []*Level `json:"data"`
+}
+
 type Level struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
@@ -133,6 +137,7 @@ type LeaderboardResponse struct {
 type Leaderboard struct {
 	GameID     string      `json:"game"`
 	CategoryID string      `json:"category"`
+	LevelID    string      `json:"level"`
 	Timing     GameRunTime `json:"timing"`
 	Runs       []PlacedRun `json:"runs"`
 }

@@ -118,9 +118,10 @@ type Game implements Node {
 
   platforms: [Platform!]!
   regions: [Region!]!
+  moderators: [GameModerator!]!
 
   categories: [Category!]!
-  moderators: [GameModerator!]!
+  levels: [Level!]!
   variables: [Variable!]!
 }
 
@@ -158,6 +159,7 @@ enum GameModeratorRole {
 type Leaderboard {
   game: Game!
   category: Category!
+  level: Level
   timing: GameRunTime!
 
   runs(
