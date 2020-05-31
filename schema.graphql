@@ -29,6 +29,7 @@ type Viewer {
     game: ID!
     category: ID!
     level: ID
+    variables: [VariableFilter!]
   ): Leaderboard
 }
 
@@ -154,6 +155,11 @@ type GameModerator {
 enum GameModeratorRole {
   MODERATOR
   SUPER_MODERATOR
+}
+
+input VariableFilter {
+  id: ID!
+  value: ID!
 }
 
 type Leaderboard {

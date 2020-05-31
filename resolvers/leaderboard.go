@@ -10,9 +10,13 @@ import (
 )
 
 func (v *Viewer) Leaderboard(ctx context.Context, args struct {
-	Game     graphql.ID
-	Category graphql.ID
-	Level    *graphql.ID
+	Game      graphql.ID
+	Category  graphql.ID
+	Level     *graphql.ID
+	Variables *[]struct {
+		ID    graphql.ID
+		Value graphql.ID
+	}
 }) (*Leaderboard, error) {
 	var gameID string
 	if err := relay.UnmarshalSpec(args.Game, &gameID); err != nil {
@@ -30,7 +34,19 @@ func (v *Viewer) Leaderboard(ctx context.Context, args struct {
 		}
 	}
 
-	lb, err := v.client.GetLeaderboard(ctx, gameID, categoryID, levelID)
+	var opts []speedrungql.FetchOption
+	if args.Variables != nil {
+		for _, v := range *args.Variables {
+			var varID string
+			if err := relay.UnmarshalSpec(v.ID, &varID); err != nil {
+				return nil, err
+			}
+
+			opts = append(opts, speedrungql.WithFilter("var-"+varID, string(v.Value)))
+		}
+	}
+
+	lb, err := v.client.GetLeaderboard(ctx, gameID, categoryID, levelID, opts...)
 	if err != nil {
 		return nil, err
 	}
