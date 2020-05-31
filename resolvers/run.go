@@ -85,6 +85,10 @@ func (r *Run) Players() []*RunPlayer {
 	return rps
 }
 
+func (r *Run) Splits() *Link {
+	return wrapLink(r.Run.Splits)
+}
+
 func (r *Run) Time(args struct {
 	Timing *GameRunTime
 }) *float64 {

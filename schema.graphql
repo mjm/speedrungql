@@ -209,6 +209,7 @@ type Run implements Node {
   date: String
   submitted: String
   players: [RunPlayer!]!
+  splits: Link
 
   time(timing: GameRunTime): Float
 

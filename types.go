@@ -144,6 +144,7 @@ type Run struct {
 	Submitted  string            `json:"submitted"`
 	Players    []RunPlayer       `json:"players"`
 	Times      RunTimes          `json:"times"`
+	Splits     *Link             `json:"splits"`
 	Values     map[string]string `json:"values"`
 }
 
