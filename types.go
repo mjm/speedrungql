@@ -35,6 +35,7 @@ type Game struct {
 	ReleaseDate  string                       `json:"release-date"`
 	Ruleset      GameRuleset                  `json:"ruleset"`
 	Platforms    []string                     `json:"platforms"`
+	Regions      []string                     `json:"regions"`
 	Moderators   map[string]GameModeratorRole `json:"moderators"`
 }
 
@@ -187,6 +188,11 @@ type RunTimes struct {
 	RealTime        float64 `json:"realtime_t"`
 	RealTimeNoLoads float64 `json:"realtime_noloads_t"`
 	InGame          float64 `json:"ingame_t"`
+}
+
+type Region struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type User struct {

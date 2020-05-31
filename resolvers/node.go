@@ -45,6 +45,14 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 		if plat != nil {
 			n = &Platform{*plat}
 		}
+	case "region":
+		reg, err := r.client.GetRegion(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if reg != nil {
+			n = &Region{*reg}
+		}
 	case "run":
 		run, err := r.client.GetRun(ctx, id)
 		if err != nil {
@@ -95,6 +103,11 @@ func (n *Node) ToGame() (*Game, bool) {
 func (n *Node) ToPlatform() (*Platform, bool) {
 	p, ok := n.nodeResolver.(*Platform)
 	return p, ok
+}
+
+func (n *Node) ToRegion() (*Region, bool) {
+	r, ok := n.nodeResolver.(*Region)
+	return r, ok
 }
 
 func (n *Node) ToRun() (*Run, bool) {

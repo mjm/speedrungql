@@ -117,7 +117,7 @@ type Game implements Node {
   ruleset: GameRuleset!
 
   platforms: [Platform!]!
-  # TODO regions
+  regions: [Region!]!
 
   categories: [Category!]!
   moderators: [GameModerator!]!
@@ -196,6 +196,12 @@ type Platform implements Node {
   rawID: String!
   name: String!
   released: Int!
+}
+
+type Region implements Node {
+  id: ID!
+  rawID: String!
+  name: String!
 }
 
 type Run implements Node {

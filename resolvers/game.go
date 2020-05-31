@@ -150,6 +150,20 @@ func (g *Game) Platforms(ctx context.Context) ([]*Platform, error) {
 	return res, nil
 }
 
+func (g *Game) Regions(ctx context.Context) ([]*Region, error) {
+	regs, err := g.client.GetRegions(ctx, g.Game.Regions)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Region
+	for _, reg := range regs {
+		res = append(res, &Region{*reg})
+	}
+
+	return res, nil
+}
+
 func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
 	cats, err := g.client.ListGameCategories(ctx, g.Game.ID)
 	if err != nil {
