@@ -109,6 +109,58 @@ func (r *Run) Time(args struct {
 	return &t
 }
 
+func (r *Run) Values(ctx context.Context) ([]*VariableValue, error) {
+	var vals []*VariableValue
+
+	for varID, valID := range r.Run.Values {
+		v, err := r.client.GetVariable(ctx, varID)
+		if err != nil {
+			return nil, err
+		}
+
+		if v == nil {
+			continue
+		}
+
+		varResolver := &Variable{*v, r.client}
+		val, ok := v.Values.Values[valID]
+		if !ok {
+			continue
+		}
+
+		vals = append(vals, &VariableValue{val, valID, varResolver})
+	}
+
+	return vals, nil
+}
+
+func (r *Run) Value(ctx context.Context, args struct {
+	VariableID graphql.ID
+}) (*VariableValue, error) {
+	varID := string(args.VariableID)
+	valID, ok := r.Run.Values[varID]
+	if !ok {
+		return nil, nil
+	}
+
+	v, err := r.client.GetVariable(ctx, varID)
+	if err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, nil
+	}
+
+	varResolver := &Variable{*v, r.client}
+	val, ok := v.Values.Values[valID]
+	if !ok {
+		return nil, nil
+	}
+
+	return &VariableValue{val, valID, varResolver}, nil
+}
+
 type RunStatus struct {
 	speedrungql.RunStatus
 	client *speedrungql.Client

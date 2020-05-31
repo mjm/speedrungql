@@ -211,6 +211,9 @@ type Run implements Node {
   players: [RunPlayer!]!
 
   time(timing: GameRunTime): Float
+
+  values: [VariableValue!]!
+  value(variableID: ID!): VariableValue
 }
 
 type RunStatus {
@@ -314,6 +317,7 @@ enum VariableScopeType {
 
 type VariableValue {
   id: ID!
+  variable: Variable!
   label: String!
   rules: String
   flags: VariableValueFlags

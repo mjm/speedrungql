@@ -134,16 +134,17 @@ type PlacedRun struct {
 }
 
 type Run struct {
-	ID         string      `json:"id"`
-	GameID     string      `json:"game"`
-	CategoryID string      `json:"category"`
-	Videos     *RunVideos  `json:"videos"`
-	Comment    string      `json:"comment"`
-	Status     RunStatus   `json:"status"`
-	Date       string      `json:"date"`
-	Submitted  string      `json:"submitted"`
-	Players    []RunPlayer `json:"players"`
-	Times      RunTimes    `json:"times"`
+	ID         string            `json:"id"`
+	GameID     string            `json:"game"`
+	CategoryID string            `json:"category"`
+	Videos     *RunVideos        `json:"videos"`
+	Comment    string            `json:"comment"`
+	Status     RunStatus         `json:"status"`
+	Date       string            `json:"date"`
+	Submitted  string            `json:"submitted"`
+	Players    []RunPlayer       `json:"players"`
+	Times      RunTimes          `json:"times"`
+	Values     map[string]string `json:"values"`
 }
 
 type RunVideos struct {

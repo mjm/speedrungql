@@ -66,7 +66,7 @@ func (v *Variable) Scope() VariableScopeType {
 func (v *Variable) Values() []*VariableValue {
 	var vals []*VariableValue
 	for valID, val := range v.Variable.Values.Values {
-		vals = append(vals, &VariableValue{val, valID})
+		vals = append(vals, &VariableValue{val, valID, v})
 	}
 
 	sort.Slice(vals, func(i, j int) bool {
@@ -86,7 +86,7 @@ func (v *Variable) DefaultValue() *VariableValue {
 		return nil
 	}
 
-	return &VariableValue{val, valID}
+	return &VariableValue{val, valID, v}
 }
 
 func (v *Variable) Value(args struct {
@@ -98,7 +98,7 @@ func (v *Variable) Value(args struct {
 		return nil
 	}
 
-	return &VariableValue{val, valID}
+	return &VariableValue{val, valID, v}
 }
 
 type VariableScopeType speedrungql.VariableScopeType
@@ -146,11 +146,16 @@ func (v *VariableScopeType) UnmarshalGraphQLType(input interface{}) error {
 
 type VariableValue struct {
 	speedrungql.VariableValue
-	id string
+	id       string
+	variable *Variable
 }
 
 func (v *VariableValue) ID() graphql.ID {
 	return graphql.ID(v.id)
+}
+
+func (v *VariableValue) Variable() *Variable {
+	return v.variable
 }
 
 func (v *VariableValue) Rules() *string {
