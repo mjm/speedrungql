@@ -6,12 +6,12 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type Level struct {
-	speedrungql.Level
-	client *speedrungql.Client
+	speedrun.Level
+	client *speedrun.Client
 }
 
 func (l *Level) ID() graphql.ID {
@@ -23,7 +23,7 @@ func (l *Level) RawID() string {
 }
 
 func (l *Level) Game(ctx context.Context) (*Game, error) {
-	gameURI := speedrungql.FindLink(l.Links, "game")
+	gameURI := speedrun.FindLink(l.Links, "game")
 	if gameURI == "" {
 		return nil, nil
 	}

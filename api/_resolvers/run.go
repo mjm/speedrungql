@@ -9,7 +9,7 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 func (v *Viewer) Runs(ctx context.Context, args struct {
@@ -27,27 +27,27 @@ func (v *Viewer) Runs(ctx context.Context, args struct {
 	}
 	Order *struct {
 		Field     *RunOrderField
-		Direction *speedrungql.OrderDirection
+		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
 }) (*RunConnection, error) {
-	var opts []speedrungql.FetchOption
+	var opts []speedrun.FetchOption
 	if args.Order != nil {
-		opts = append(opts, speedrungql.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
 	}
 	if args.Filter != nil {
-		opts = append(opts, speedrungql.WithFilters(*args.Filter))
+		opts = append(opts, speedrun.WithFilters(*args.Filter))
 	}
 	if args.First != nil {
-		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
 	}
 	if args.After != nil {
 		offset, err := args.After.GetOffset()
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, speedrungql.WithOffset(offset))
+		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
 	runs, pageInfo, err := v.client.ListRuns(ctx, opts...)
@@ -85,9 +85,9 @@ func (v *RunOrderField) UnmarshalGraphQL(input interface{}) error {
 }
 
 type RunConnection struct {
-	client   *speedrungql.Client
-	runs     []*speedrungql.Run
-	pageInfo *speedrungql.PageInfo
+	client   *speedrun.Client
+	runs     []*speedrun.Run
+	pageInfo *speedrun.PageInfo
 }
 
 func (rc *RunConnection) Edges() []*RunEdge {
@@ -121,8 +121,8 @@ func (e *RunEdge) Cursor() *Cursor {
 }
 
 type Run struct {
-	speedrungql.Run
-	client *speedrungql.Client
+	speedrun.Run
+	client *speedrun.Client
 }
 
 func (r *Run) ID() graphql.ID {
@@ -222,12 +222,12 @@ func (r *Run) Time(args struct {
 	if args.Timing == nil {
 		t = r.Times.Primary
 	} else {
-		switch speedrungql.GameRunTime(*args.Timing) {
-		case speedrungql.RealTime:
+		switch speedrun.GameRunTime(*args.Timing) {
+		case speedrun.RealTime:
 			t = r.Times.RealTime
-		case speedrungql.RealTimeNoLoads:
+		case speedrun.RealTimeNoLoads:
 			t = r.Times.RealTimeNoLoads
-		case speedrungql.InGame:
+		case speedrun.InGame:
 			t = r.Times.InGame
 		}
 	}
@@ -291,8 +291,8 @@ func (r *Run) Value(ctx context.Context, args struct {
 }
 
 type RunStatus struct {
-	speedrungql.RunStatus
-	client *speedrungql.Client
+	speedrun.RunStatus
+	client *speedrun.Client
 }
 
 func (rs *RunStatus) Status() RunStatusValue {
@@ -331,7 +331,7 @@ func (rs *RunStatus) Reason() *string {
 	return &rs.RunStatus.Reason
 }
 
-type RunStatusValue speedrungql.RunStatusValue
+type RunStatusValue speedrun.RunStatusValue
 
 func (RunStatusValue) ImplementsGraphQLType(name string) bool {
 	return name == "RunStatusValue"
@@ -349,11 +349,11 @@ func (v *RunStatusValue) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "NEW":
-		*v = RunStatusValue(speedrungql.RunNew)
+		*v = RunStatusValue(speedrun.RunNew)
 	case "VERIFIED":
-		*v = RunStatusValue(speedrungql.RunVerified)
+		*v = RunStatusValue(speedrun.RunVerified)
 	case "REJECTED":
-		*v = RunStatusValue(speedrungql.RunRejected)
+		*v = RunStatusValue(speedrun.RunRejected)
 	default:
 		return fmt.Errorf("unknown RunStatusValue value %q", s)
 	}
@@ -362,7 +362,7 @@ func (v *RunStatusValue) UnmarshalGraphQL(input interface{}) error {
 }
 
 type RunVideos struct {
-	speedrungql.RunVideos
+	speedrun.RunVideos
 }
 
 func (rv *RunVideos) Text() *string {
@@ -381,12 +381,12 @@ func (rv *RunVideos) Links() []*Link {
 }
 
 type RunPlayer struct {
-	speedrungql.RunPlayer
-	client *speedrungql.Client
+	speedrun.RunPlayer
+	client *speedrun.Client
 }
 
 func (rp *RunPlayer) ToUserRunPlayer() (*UserRunPlayer, bool) {
-	if rp.Rel != speedrungql.PlayerUser {
+	if rp.Rel != speedrun.PlayerUser {
 		return nil, false
 	}
 
@@ -394,7 +394,7 @@ func (rp *RunPlayer) ToUserRunPlayer() (*UserRunPlayer, bool) {
 }
 
 func (rp *RunPlayer) ToGuestRunPlayer() (*GuestRunPlayer, bool) {
-	if rp.Rel != speedrungql.PlayerGuest {
+	if rp.Rel != speedrun.PlayerGuest {
 		return nil, false
 	}
 
@@ -402,8 +402,8 @@ func (rp *RunPlayer) ToGuestRunPlayer() (*GuestRunPlayer, bool) {
 }
 
 type UserRunPlayer struct {
-	speedrungql.RunPlayer
-	client *speedrungql.Client
+	speedrun.RunPlayer
+	client *speedrun.Client
 }
 
 func (urp *UserRunPlayer) User(ctx context.Context) (*User, error) {
@@ -420,5 +420,5 @@ func (urp *UserRunPlayer) User(ctx context.Context) (*User, error) {
 }
 
 type GuestRunPlayer struct {
-	speedrungql.RunPlayer
+	speedrun.RunPlayer
 }

@@ -8,12 +8,12 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type Category struct {
-	speedrungql.Category
-	client *speedrungql.Client
+	speedrun.Category
+	client *speedrun.Client
 }
 
 func (c *Category) ID() graphql.ID {
@@ -25,7 +25,7 @@ func (c *Category) RawID() string {
 }
 
 func (c *Category) Game(ctx context.Context) (*Game, error) {
-	gameURI := speedrungql.FindLink(c.Links, "game")
+	gameURI := speedrun.FindLink(c.Links, "game")
 	if gameURI == "" {
 		return nil, nil
 	}
@@ -77,7 +77,7 @@ func (c *Category) Runs(ctx context.Context, args struct {
 	}
 	Order *struct {
 		Field     *RunOrderField
-		Direction *speedrungql.OrderDirection
+		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
@@ -86,25 +86,25 @@ func (c *Category) Runs(ctx context.Context, args struct {
 		return nil, errors.New("cannot filter runs by category when reading from a specific category")
 	}
 
-	opts := []speedrungql.FetchOption{
-		speedrungql.WithFilter("category", c.Category.ID),
+	opts := []speedrun.FetchOption{
+		speedrun.WithFilter("category", c.Category.ID),
 	}
 
 	if args.Order != nil {
-		opts = append(opts, speedrungql.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
 	}
 	if args.Filter != nil {
-		opts = append(opts, speedrungql.WithFilters(*args.Filter))
+		opts = append(opts, speedrun.WithFilters(*args.Filter))
 	}
 	if args.First != nil {
-		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
 	}
 	if args.After != nil {
 		offset, err := args.After.GetOffset()
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, speedrungql.WithOffset(offset))
+		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
 	runs, pageInfo, err := c.client.ListRuns(ctx, opts...)
@@ -119,17 +119,17 @@ func (c *Category) Runs(ctx context.Context, args struct {
 	}, nil
 }
 
-type CategoryType speedrungql.CategoryType
+type CategoryType speedrun.CategoryType
 
 func (CategoryType) ImplementsGraphQLType(name string) bool {
 	return name == "CategoryType"
 }
 
 func (v CategoryType) String() string {
-	switch speedrungql.CategoryType(v) {
-	case speedrungql.CategoryPerGame:
+	switch speedrun.CategoryType(v) {
+	case speedrun.CategoryPerGame:
 		return "PER_GAME"
-	case speedrungql.CategoryPerLevel:
+	case speedrun.CategoryPerLevel:
 		return "PER_LEVEL"
 	default:
 		return ""
@@ -144,9 +144,9 @@ func (v *CategoryType) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "PER_GAME":
-		*v = CategoryType(speedrungql.CategoryPerGame)
+		*v = CategoryType(speedrun.CategoryPerGame)
 	case "PER_LEVEL":
-		*v = CategoryType(speedrungql.CategoryPerLevel)
+		*v = CategoryType(speedrun.CategoryPerLevel)
 	default:
 		return fmt.Errorf("unknown CategoryType value %q", s)
 	}
@@ -155,7 +155,7 @@ func (v *CategoryType) UnmarshalGraphQL(input interface{}) error {
 }
 
 type CategoryPlayers struct {
-	speedrungql.CategoryPlayers
+	speedrun.CategoryPlayers
 }
 
 func (c *CategoryPlayers) Type() CategoryPlayersType {
@@ -166,17 +166,17 @@ func (c *CategoryPlayers) Value() int32 {
 	return int32(c.CategoryPlayers.Value)
 }
 
-type CategoryPlayersType speedrungql.CategoryPlayersType
+type CategoryPlayersType speedrun.CategoryPlayersType
 
 func (CategoryPlayersType) ImplementsGraphQLType(name string) bool {
 	return name == "CategoryPlayersType"
 }
 
 func (v CategoryPlayersType) String() string {
-	switch speedrungql.CategoryPlayersType(v) {
-	case speedrungql.PlayersExactly:
+	switch speedrun.CategoryPlayersType(v) {
+	case speedrun.PlayersExactly:
 		return "EXACTLY"
-	case speedrungql.PlayersUpTo:
+	case speedrun.PlayersUpTo:
 		return "UP_TO"
 	default:
 		return ""
@@ -191,9 +191,9 @@ func (v *CategoryPlayersType) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "EXACTLY":
-		*v = CategoryPlayersType(speedrungql.PlayersExactly)
+		*v = CategoryPlayersType(speedrun.PlayersExactly)
 	case "UP_TO":
-		*v = CategoryPlayersType(speedrungql.PlayersUpTo)
+		*v = CategoryPlayersType(speedrun.PlayersUpTo)
 	default:
 		return fmt.Errorf("unknown CategoryPlayersType value %q", s)
 	}

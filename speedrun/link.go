@@ -1,4 +1,4 @@
-package speedrungql
+package speedrun
 
 func FindLink(links []Link, rel string) string {
 	for _, link := range links {

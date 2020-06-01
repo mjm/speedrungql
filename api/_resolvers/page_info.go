@@ -3,11 +3,11 @@ package resolvers
 import (
 	"fmt"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type PageInfo struct {
-	pi *speedrungql.PageInfo
+	pi *speedrun.PageInfo
 }
 
 func (pi *PageInfo) StartCursor() *Cursor {

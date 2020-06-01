@@ -1,4 +1,4 @@
-package speedrungql
+package speedrun
 
 import (
 	"encoding/json"

@@ -1,11 +1,11 @@
 package resolvers
 
 import (
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type Link struct {
-	speedrungql.Link
+	speedrun.Link
 }
 
 func (l *Link) Rel() *string {
@@ -15,7 +15,7 @@ func (l *Link) Rel() *string {
 	return &l.Link.Rel
 }
 
-func wrapLink(link *speedrungql.Link) *Link {
+func wrapLink(link *speedrun.Link) *Link {
 	if link == nil {
 		return nil
 	}

@@ -1,8 +1,7 @@
-package main
+package handler
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/mjm/graphql-go"
@@ -11,8 +10,10 @@ import (
 	"github.com/mjm/speedrungql/api/_resolvers"
 )
 
-func main() {
-	schemaData, err := ioutil.ReadFile("api/schema.graphql")
+var handler http.Handler
+
+func init() {
+	schemaData, err := ioutil.ReadFile("schema.graphql")
 	if err != nil {
 		panic(err)
 	}
@@ -25,8 +26,9 @@ func main() {
 		panic(err)
 	}
 
-	handler := &relay.Handler{Schema: schema}
-	http.Handle("/graphql", handler)
+	handler = &relay.Handler{Schema: schema}
+}
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+func Handler(w http.ResponseWriter, r *http.Request) {
+	handler.ServeHTTP(w, r)
 }

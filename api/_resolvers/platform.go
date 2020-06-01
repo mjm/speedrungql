@@ -6,30 +6,30 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 func (v *Viewer) Platforms(ctx context.Context, args struct {
 	Order *struct {
 		Field     *string
-		Direction *speedrungql.OrderDirection
+		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
 }) (*PlatformConnection, error) {
-	var opts []speedrungql.FetchOption
+	var opts []speedrun.FetchOption
 	if args.Order != nil {
-		opts = append(opts, speedrungql.WithOrder(args.Order.Field, args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder(args.Order.Field, args.Order.Direction))
 	}
 	if args.First != nil {
-		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
 	}
 	if args.After != nil {
 		offset, err := args.After.GetOffset()
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, speedrungql.WithOffset(offset))
+		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
 	plats, pageInfo, err := v.client.ListPlatforms(ctx, opts...)
@@ -41,8 +41,8 @@ func (v *Viewer) Platforms(ctx context.Context, args struct {
 }
 
 type PlatformConnection struct {
-	platforms []*speedrungql.Platform
-	pageInfo  *speedrungql.PageInfo
+	platforms []*speedrun.Platform
+	pageInfo  *speedrun.PageInfo
 }
 
 func (pc *PlatformConnection) Edges() []*PlatformEdge {
@@ -76,7 +76,7 @@ func (pe *PlatformEdge) Cursor() *Cursor {
 }
 
 type Platform struct {
-	speedrungql.Platform
+	speedrun.Platform
 }
 
 func (p *Platform) ID() graphql.ID {

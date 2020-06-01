@@ -9,12 +9,12 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type Variable struct {
-	speedrungql.Variable
-	client *speedrungql.Client
+	speedrun.Variable
+	client *speedrun.Client
 }
 
 func (v *Variable) ID() graphql.ID {
@@ -26,7 +26,7 @@ func (v *Variable) RawID() string {
 }
 
 func (v *Variable) Game(ctx context.Context) (*Game, error) {
-	gameURI := speedrungql.FindLink(v.Links, "game")
+	gameURI := speedrun.FindLink(v.Links, "game")
 	if gameURI == "" {
 		return nil, nil
 	}
@@ -101,21 +101,21 @@ func (v *Variable) Value(args struct {
 	return &VariableValue{val, valID, v}
 }
 
-type VariableScopeType speedrungql.VariableScopeType
+type VariableScopeType speedrun.VariableScopeType
 
 func (VariableScopeType) ImplementsGraphQLType(name string) bool {
 	return name == "VariableScopeType"
 }
 
 func (v VariableScopeType) String() string {
-	switch speedrungql.VariableScopeType(v) {
-	case speedrungql.ScopeGlobal:
+	switch speedrun.VariableScopeType(v) {
+	case speedrun.ScopeGlobal:
 		return "GLOBAL"
-	case speedrungql.ScopeFullGame:
+	case speedrun.ScopeFullGame:
 		return "FULL_GAME"
-	case speedrungql.ScopeAllLevels:
+	case speedrun.ScopeAllLevels:
 		return "ALL_LEVELS"
-	case speedrungql.ScopeSingleLevel:
+	case speedrun.ScopeSingleLevel:
 		return "SINGLE_LEVEL"
 	default:
 		return ""
@@ -130,13 +130,13 @@ func (v *VariableScopeType) UnmarshalGraphQLType(input interface{}) error {
 
 	switch s {
 	case "GLOBAL":
-		*v = VariableScopeType(speedrungql.ScopeGlobal)
+		*v = VariableScopeType(speedrun.ScopeGlobal)
 	case "FULL_GAME":
-		*v = VariableScopeType(speedrungql.ScopeFullGame)
+		*v = VariableScopeType(speedrun.ScopeFullGame)
 	case "ALL_LEVELS":
-		*v = VariableScopeType(speedrungql.ScopeAllLevels)
+		*v = VariableScopeType(speedrun.ScopeAllLevels)
 	case "SINGLE_LEVEL":
-		*v = VariableScopeType(speedrungql.ScopeSingleLevel)
+		*v = VariableScopeType(speedrun.ScopeSingleLevel)
 	default:
 		return fmt.Errorf("unknown VariableScopeType value %q", s)
 	}
@@ -145,7 +145,7 @@ func (v *VariableScopeType) UnmarshalGraphQLType(input interface{}) error {
 }
 
 type VariableValue struct {
-	speedrungql.VariableValue
+	speedrun.VariableValue
 	id       string
 	variable *Variable
 }

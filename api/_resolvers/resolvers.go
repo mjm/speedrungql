@@ -1,16 +1,16 @@
 package resolvers
 
 import (
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type Resolvers struct {
-	client *speedrungql.Client
+	client *speedrun.Client
 }
 
 func New(baseURL string) *Resolvers {
 	return &Resolvers{
-		client: speedrungql.NewClient(baseURL),
+		client: speedrun.NewClient(baseURL),
 	}
 }
 
@@ -19,5 +19,5 @@ func (r *Resolvers) Viewer() *Viewer {
 }
 
 type Viewer struct {
-	client *speedrungql.Client
+	client *speedrun.Client
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 func (v *Viewer) Games(ctx context.Context, args struct {
@@ -19,29 +19,29 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 	}
 	Order *struct {
 		Field     *string
-		Direction *speedrungql.OrderDirection
+		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
 }) (*GameConnection, error) {
-	var opts []speedrungql.FetchOption
+	var opts []speedrun.FetchOption
 	if args.Order != nil {
-		opts = append(opts, speedrungql.WithOrder(args.Order.Field, args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder(args.Order.Field, args.Order.Direction))
 	}
 	if args.Filter != nil {
 		if args.Filter.Name != nil {
-			opts = append(opts, speedrungql.WithFilter("name", *args.Filter.Name))
+			opts = append(opts, speedrun.WithFilter("name", *args.Filter.Name))
 		}
 	}
 	if args.First != nil {
-		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
 	}
 	if args.After != nil {
 		offset, err := args.After.GetOffset()
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, speedrungql.WithOffset(offset))
+		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
 	games, pageInfo, err := v.client.ListGames(ctx, opts...)
@@ -57,9 +57,9 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 }
 
 type GameConnection struct {
-	client   *speedrungql.Client
-	games    []*speedrungql.Game
-	pageInfo *speedrungql.PageInfo
+	client   *speedrun.Client
+	games    []*speedrun.Game
+	pageInfo *speedrun.PageInfo
 }
 
 func (gc *GameConnection) Edges() []*GameEdge {
@@ -93,8 +93,8 @@ func (*GameEdge) Cursor() *Cursor {
 }
 
 type Game struct {
-	speedrungql.Game
-	client *speedrungql.Client
+	speedrun.Game
+	client *speedrun.Client
 }
 
 func (g *Game) ID() graphql.ID {
@@ -234,7 +234,7 @@ func (g *Game) Runs(ctx context.Context, args struct {
 	}
 	Order *struct {
 		Field     *RunOrderField
-		Direction *speedrungql.OrderDirection
+		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
@@ -243,25 +243,25 @@ func (g *Game) Runs(ctx context.Context, args struct {
 		return nil, errors.New("cannot filter runs by game when reading from a specific game")
 	}
 
-	opts := []speedrungql.FetchOption{
-		speedrungql.WithFilter("game", g.Game.ID),
+	opts := []speedrun.FetchOption{
+		speedrun.WithFilter("game", g.Game.ID),
 	}
 
 	if args.Order != nil {
-		opts = append(opts, speedrungql.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
 	}
 	if args.Filter != nil {
-		opts = append(opts, speedrungql.WithFilters(*args.Filter))
+		opts = append(opts, speedrun.WithFilters(*args.Filter))
 	}
 	if args.First != nil {
-		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
 	}
 	if args.After != nil {
 		offset, err := args.After.GetOffset()
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, speedrungql.WithOffset(offset))
+		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
 	runs, pageInfo, err := g.client.ListRuns(ctx, opts...)
@@ -277,7 +277,7 @@ func (g *Game) Runs(ctx context.Context, args struct {
 }
 
 type GameRuleset struct {
-	speedrungql.GameRuleset
+	speedrun.GameRuleset
 }
 
 func (gr *GameRuleset) RunTimes() []GameRunTime {
@@ -292,7 +292,7 @@ func (gr *GameRuleset) DefaultRunTime() GameRunTime {
 	return GameRunTime(gr.GameRuleset.DefaultRunTime)
 }
 
-type GameRunTime speedrungql.GameRunTime
+type GameRunTime speedrun.GameRunTime
 
 func (GameRunTime) ImplementsGraphQLType(name string) bool {
 	return name == "GameRunTime"
@@ -310,11 +310,11 @@ func (v *GameRunTime) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "REALTIME":
-		*v = GameRunTime(speedrungql.RealTime)
+		*v = GameRunTime(speedrun.RealTime)
 	case "REALTIME_NOLOADS":
-		*v = GameRunTime(speedrungql.RealTimeNoLoads)
+		*v = GameRunTime(speedrun.RealTimeNoLoads)
 	case "INGAME":
-		*v = GameRunTime(speedrungql.InGame)
+		*v = GameRunTime(speedrun.InGame)
 	default:
 		return fmt.Errorf("unknown GameRunTime value %q", s)
 	}
@@ -324,8 +324,8 @@ func (v *GameRunTime) UnmarshalGraphQL(input interface{}) error {
 
 type GameModerator struct {
 	userID string
-	role   speedrungql.GameModeratorRole
-	client *speedrungql.Client
+	role   speedrun.GameModeratorRole
+	client *speedrun.Client
 }
 
 func (gm *GameModerator) User(ctx context.Context) (*User, error) {
@@ -341,17 +341,17 @@ func (gm *GameModerator) Role() GameModeratorRole {
 	return GameModeratorRole(gm.role)
 }
 
-type GameModeratorRole speedrungql.GameModeratorRole
+type GameModeratorRole speedrun.GameModeratorRole
 
 func (GameModeratorRole) ImplementsGraphQLType(name string) bool {
 	return name == "GameModeratorRole"
 }
 
 func (v GameModeratorRole) String() string {
-	switch speedrungql.GameModeratorRole(v) {
-	case speedrungql.Moderator:
+	switch speedrun.GameModeratorRole(v) {
+	case speedrun.Moderator:
 		return "MODERATOR"
-	case speedrungql.SuperModerator:
+	case speedrun.SuperModerator:
 		return "SUPER_MODERATOR"
 	default:
 		return ""
@@ -366,9 +366,9 @@ func (v *GameModeratorRole) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "MODERATOR":
-		*v = GameModeratorRole(speedrungql.Moderator)
+		*v = GameModeratorRole(speedrun.Moderator)
 	case "SUPER_MODERATOR":
-		*v = GameModeratorRole(speedrungql.SuperModerator)
+		*v = GameModeratorRole(speedrun.SuperModerator)
 	default:
 		return fmt.Errorf("unknown GameModeratorRole value %q", s)
 	}

@@ -8,11 +8,11 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 type User struct {
-	speedrungql.User
+	speedrun.User
 }
 
 func (u *User) ID() graphql.ID {
@@ -78,7 +78,7 @@ func (u *User) SpeedRunsLive() *Link {
 }
 
 type UserNames struct {
-	speedrungql.UserNames
+	speedrun.UserNames
 }
 
 func (un *UserNames) Japanese() *string {
@@ -89,11 +89,11 @@ func (un *UserNames) Japanese() *string {
 }
 
 type UserNameStyle struct {
-	speedrungql.UserNameStyle
+	speedrun.UserNameStyle
 }
 
 func (uns *UserNameStyle) ToSolidUserNameStyle() (*SolidUserNameStyle, bool) {
-	if uns.Style != speedrungql.StyleSolid {
+	if uns.Style != speedrun.StyleSolid {
 		return nil, false
 	}
 
@@ -101,7 +101,7 @@ func (uns *UserNameStyle) ToSolidUserNameStyle() (*SolidUserNameStyle, bool) {
 }
 
 func (uns *UserNameStyle) ToGradientUserNameStyle() (*GradientUserNameStyle, bool) {
-	if uns.Style != speedrungql.StyleGradient {
+	if uns.Style != speedrun.StyleGradient {
 		return nil, false
 	}
 
@@ -109,14 +109,14 @@ func (uns *UserNameStyle) ToGradientUserNameStyle() (*GradientUserNameStyle, boo
 }
 
 type SolidUserNameStyle struct {
-	speedrungql.UserNameStyle
+	speedrun.UserNameStyle
 }
 
 type GradientUserNameStyle struct {
-	speedrungql.UserNameStyle
+	speedrun.UserNameStyle
 }
 
-type UserRole speedrungql.UserRole
+type UserRole speedrun.UserRole
 
 func (UserRole) ImplementsGraphQLType(name string) bool {
 	return name == "UserRole"
@@ -134,17 +134,17 @@ func (v *UserRole) UnmarshalGraphQL(input interface{}) error {
 
 	switch s {
 	case "USER":
-		*v = UserRole(speedrungql.RoleUser)
+		*v = UserRole(speedrun.RoleUser)
 	case "BANNED":
-		*v = UserRole(speedrungql.RoleBanned)
+		*v = UserRole(speedrun.RoleBanned)
 	case "TRUSTED":
-		*v = UserRole(speedrungql.RoleTrusted)
+		*v = UserRole(speedrun.RoleTrusted)
 	case "MODERATOR":
-		*v = UserRole(speedrungql.RoleModerator)
+		*v = UserRole(speedrun.RoleModerator)
 	case "ADMIN":
-		*v = UserRole(speedrungql.RoleAdmin)
+		*v = UserRole(speedrun.RoleAdmin)
 	case "PROGRAMMER":
-		*v = UserRole(speedrungql.RoleProgrammer)
+		*v = UserRole(speedrun.RoleProgrammer)
 	default:
 		return fmt.Errorf("unknown UserRole value %q", s)
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
 
-	"github.com/mjm/speedrungql"
+	"github.com/mjm/speedrungql/speedrun"
 )
 
 func (v *Viewer) Leaderboard(ctx context.Context, args struct {
@@ -34,7 +34,7 @@ func (v *Viewer) Leaderboard(ctx context.Context, args struct {
 		}
 	}
 
-	var opts []speedrungql.FetchOption
+	var opts []speedrun.FetchOption
 	if args.Variables != nil {
 		for _, v := range *args.Variables {
 			var varID string
@@ -42,7 +42,7 @@ func (v *Viewer) Leaderboard(ctx context.Context, args struct {
 				return nil, err
 			}
 
-			opts = append(opts, speedrungql.WithFilter("var-"+varID, string(v.Value)))
+			opts = append(opts, speedrun.WithFilter("var-"+varID, string(v.Value)))
 		}
 	}
 
@@ -59,8 +59,8 @@ func (v *Viewer) Leaderboard(ctx context.Context, args struct {
 }
 
 type Leaderboard struct {
-	speedrungql.Leaderboard
-	client *speedrungql.Client
+	speedrun.Leaderboard
+	client *speedrun.Client
 }
 
 func (l *Leaderboard) Game(ctx context.Context) (*Game, error) {
@@ -126,8 +126,8 @@ func (l *Leaderboard) Runs(args struct {
 }
 
 type PlacedRun struct {
-	speedrungql.PlacedRun
-	client *speedrungql.Client
+	speedrun.PlacedRun
+	client *speedrun.Client
 }
 
 func (pr *PlacedRun) Place() int32 {
