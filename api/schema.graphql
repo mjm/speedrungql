@@ -32,6 +32,13 @@ type Viewer {
     after: Cursor
   ): RunConnection!
 
+  users(
+    filter: UserFilter
+    order: UserOrder
+    first: Int
+    after: Cursor
+  ): UserConnection
+
   leaderboard(
     game: ID!
     category: ID!
@@ -333,6 +340,38 @@ type UserRunPlayer {
 
 type GuestRunPlayer {
   name: String!
+}
+
+input UserFilter {
+  lookup: String
+  name: String
+  twitch: String
+  hitbox: String
+  twitter: String
+  speedrunslive: String
+}
+
+input UserOrder {
+  field: UserOrderField
+  direction: OrderDirection
+}
+
+enum UserOrderField {
+  NAME_INT
+  NAME_JAP
+  SIGNUP
+  ROLE
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  nodes: [User!]!
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  node: User!
+  cursor: Cursor
 }
 
 type User implements Node {

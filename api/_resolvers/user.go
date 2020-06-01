@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -10,6 +11,112 @@ import (
 
 	"github.com/mjm/speedrungql/speedrun"
 )
+
+func (v *Viewer) Users(ctx context.Context, args struct {
+	Filter *struct {
+		Lookup        *string `filter:"lookup"`
+		Name          *string `filter:"name"`
+		Twitch        *string `filter:"twitch"`
+		Hitbox        *string `filter:"hitbox"`
+		Twitter       *string `filter:"twitter"`
+		SpeedRunsLive *string `filter:"speedrunslive"`
+	}
+	Order *struct {
+		Field     *UserOrderField
+		Direction *speedrun.OrderDirection
+	}
+	First *int32
+	After *Cursor
+}) (*UserConnection, error) {
+	var opts []speedrun.FetchOption
+	if args.Order != nil {
+		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+	}
+	if args.Filter != nil {
+		opts = append(opts, speedrun.WithFilters(*args.Filter))
+	}
+	if args.First != nil {
+		opts = append(opts, speedrun.WithLimit(int(*args.First)))
+	}
+	if args.After != nil {
+		offset, err := args.After.GetOffset()
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, speedrun.WithOffset(offset))
+	}
+
+	users, pageInfo, err := v.client.ListUsers(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserConnection{
+		client:   v.client,
+		users:    users,
+		pageInfo: pageInfo,
+	}, nil
+}
+
+type UserOrderField string
+
+func (UserOrderField) ImplementsGraphQLType(name string) bool {
+	return name == "UserOrderField"
+}
+
+func (v *UserOrderField) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("UserOrderField value was not a string")
+	}
+
+	switch s {
+	case "NAME_INT":
+		*v = "name.int"
+	case "NAME_JAP":
+		*v = "name.jap"
+	default:
+		*v = UserOrderField(strings.ToLower(s))
+	}
+
+	return nil
+}
+
+type UserConnection struct {
+	client   *speedrun.Client
+	users    []*speedrun.User
+	pageInfo *speedrun.PageInfo
+}
+
+func (uc *UserConnection) Edges() []*UserEdge {
+	var edges []*UserEdge
+	for _, user := range uc.users {
+		edges = append(edges, &UserEdge{
+			Node: &User{*user},
+		})
+	}
+	return edges
+}
+
+func (uc *UserConnection) Nodes() []*User {
+	var nodes []*User
+	for _, user := range uc.users {
+		nodes = append(nodes, &User{*user})
+	}
+	return nodes
+}
+
+func (uc *UserConnection) PageInfo() *PageInfo {
+	return &PageInfo{uc.pageInfo}
+}
+
+type UserEdge struct {
+	Node *User
+}
+
+func (*UserEdge) Cursor() *Cursor {
+	return nil
+}
 
 type User struct {
 	speedrun.User

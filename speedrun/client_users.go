@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+func (c *Client) ListUsers(ctx context.Context, opts ...FetchOption) ([]*User, *PageInfo, error) {
+	var resp UsersResponse
+	if err := c.fetch(ctx, "/users", &resp, opts...); err != nil {
+		return nil, nil, err
+	}
+	return resp.Data, resp.Pagination, nil
+}
+
 func (c *Client) GetUser(ctx context.Context, userID string) (*User, error) {
 	var user User
 	if err := c.loadItem(ctx, c.userKey(userID), &user); err != nil {

@@ -214,6 +214,11 @@ type Region struct {
 	Name string `json:"name"`
 }
 
+type UsersResponse struct {
+	Data       []*User   `json:"data"`
+	Pagination *PageInfo `json:"pagination"`
+}
+
 type User struct {
 	ID            string        `json:"id"`
 	Names         UserNames     `json:"names"`
