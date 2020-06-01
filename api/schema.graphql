@@ -388,6 +388,13 @@ type User implements Node {
   youtube: Link
   twitter: Link
   speedrunslive: Link
+
+  runs(
+    filter: RunFilter
+    order: RunOrder
+    first: Int
+    after: Cursor
+  ): RunConnection!
 }
 
 enum UserNameVariant {

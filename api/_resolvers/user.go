@@ -92,7 +92,7 @@ func (uc *UserConnection) Edges() []*UserEdge {
 	var edges []*UserEdge
 	for _, user := range uc.users {
 		edges = append(edges, &UserEdge{
-			Node: &User{*user},
+			Node: &User{*user, uc.client},
 		})
 	}
 	return edges
@@ -101,7 +101,7 @@ func (uc *UserConnection) Edges() []*UserEdge {
 func (uc *UserConnection) Nodes() []*User {
 	var nodes []*User
 	for _, user := range uc.users {
-		nodes = append(nodes, &User{*user})
+		nodes = append(nodes, &User{*user, uc.client})
 	}
 	return nodes
 }
@@ -120,6 +120,7 @@ func (*UserEdge) Cursor() *Cursor {
 
 type User struct {
 	speedrun.User
+	client *speedrun.Client
 }
 
 func (u *User) ID() graphql.ID {
@@ -182,6 +183,14 @@ func (u *User) Twitter() *Link {
 
 func (u *User) SpeedRunsLive() *Link {
 	return wrapLink(u.User.SpeedRunsLive)
+}
+
+func (u *User) Runs(ctx context.Context, args FetchRunsArgs) (*RunConnection, error) {
+	if args.Filter != nil && args.Filter.User != nil {
+		return nil, errors.New("cannot filter runs by user when reading from a specific user")
+	}
+
+	return fetchRunConnection(ctx, u.client, args, speedrun.WithFilter("user", u.User.ID))
 }
 
 type UserNames struct {

@@ -320,7 +320,7 @@ func (rs *RunStatus) Examiner(ctx context.Context) (*User, error) {
 		return nil, nil
 	}
 
-	return &User{*user}, nil
+	return &User{*user, rs.client}, nil
 }
 
 func (rs *RunStatus) VerifyDate() *graphql.Time {
@@ -423,7 +423,7 @@ func (urp *UserRunPlayer) User(ctx context.Context) (*User, error) {
 		return nil, nil
 	}
 
-	return &User{*user}, nil
+	return &User{*user, urp.client}, nil
 }
 
 type GuestRunPlayer struct {

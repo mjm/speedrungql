@@ -285,7 +285,7 @@ func (gm *GameModerator) User(ctx context.Context) (*User, error) {
 		return nil, err
 	}
 
-	return &User{*user}, nil
+	return &User{*user, gm.client}, nil
 }
 
 func (gm *GameModerator) Role() GameModeratorRole {
