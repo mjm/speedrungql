@@ -68,6 +68,13 @@ type Category implements Node {
   players: CategoryPlayers!
   miscellaneous: Boolean!
   variables: [Variable!]!
+
+  runs(
+    filter: RunFilter
+    order: RunOrder
+    first: Int
+    after: Cursor
+  ): RunConnection!
 }
 
 enum CategoryType {
@@ -131,6 +138,13 @@ type Game implements Node {
   categories: [Category!]!
   levels: [Level!]!
   variables: [Variable!]!
+
+  runs(
+    filter: RunFilter
+    order: RunOrder
+    first: Int
+    after: Cursor
+  ): RunConnection!
 }
 
 enum GameNameVariant {

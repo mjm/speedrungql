@@ -62,6 +62,63 @@ func (c *Category) Variables(ctx context.Context) ([]*Variable, error) {
 	return res, nil
 }
 
+func (c *Category) Runs(ctx context.Context, args struct {
+	Filter *struct {
+		User     *graphql.ID     `filter:"user"`
+		Guest    *string         `filter:"guest"`
+		Examiner *graphql.ID     `filter:"examiner"`
+		Game     *graphql.ID     `filter:"game"`
+		Level    *graphql.ID     `filter:"level"`
+		Category *graphql.ID     `filter:"category"`
+		Platform *graphql.ID     `filter:"platform"`
+		Region   *graphql.ID     `filter:"region"`
+		Emulated *bool           `filter:"emulated"`
+		Status   *RunStatusValue `filter:"status"`
+	}
+	Order *struct {
+		Field     *RunOrderField
+		Direction *speedrungql.OrderDirection
+	}
+	First *int32
+	After *Cursor
+}) (*RunConnection, error) {
+	if args.Filter != nil && args.Filter.Category != nil {
+		return nil, errors.New("cannot filter runs by category when reading from a specific category")
+	}
+
+	opts := []speedrungql.FetchOption{
+		speedrungql.WithFilter("category", c.Category.ID),
+	}
+
+	if args.Order != nil {
+		opts = append(opts, speedrungql.WithOrder((*string)(args.Order.Field), args.Order.Direction))
+	}
+	if args.Filter != nil {
+		opts = append(opts, speedrungql.WithFilters(*args.Filter))
+	}
+	if args.First != nil {
+		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
+	}
+	if args.After != nil {
+		offset, err := args.After.GetOffset()
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, speedrungql.WithOffset(offset))
+	}
+
+	runs, pageInfo, err := c.client.ListRuns(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RunConnection{
+		client:   c.client,
+		runs:     runs,
+		pageInfo: pageInfo,
+	}, nil
+}
+
 type CategoryType speedrungql.CategoryType
 
 func (CategoryType) ImplementsGraphQLType(name string) bool {

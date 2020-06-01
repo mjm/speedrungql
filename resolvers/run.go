@@ -38,15 +38,6 @@ func (v *Viewer) Runs(ctx context.Context, args struct {
 	}
 	if args.Filter != nil {
 		opts = append(opts, speedrungql.WithFilters(*args.Filter))
-		//if args.Filter.User != nil {
-		//	opts = append(opts, speedrungql.WithFilter("user", *args.Filter.User))
-		//}
-		//if args.Filter.Guest != nil {
-		//	opts = append(opts, speedrungql.WithFilter("guest", *args.Filter.Guest))
-		//}
-		//if args.Filter.Examiner != nil {
-		//	opts = append(opts, speedrungql.WithFilter("examiner"))
-		//}
 	}
 	if args.First != nil {
 		opts = append(opts, speedrungql.WithLimit(int(*args.First)))
