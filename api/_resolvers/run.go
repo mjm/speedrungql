@@ -12,7 +12,11 @@ import (
 	"github.com/mjm/speedrungql/speedrun"
 )
 
-func (v *Viewer) Runs(ctx context.Context, args struct {
+func (v *Viewer) Runs(ctx context.Context, args FetchRunsArgs) (*RunConnection, error) {
+	return fetchRunConnection(ctx, v.client, args)
+}
+
+type FetchRunsArgs struct {
 	Filter *struct {
 		User     *graphql.ID     `filter:"user"`
 		Guest    *string         `filter:"guest"`
@@ -31,8 +35,11 @@ func (v *Viewer) Runs(ctx context.Context, args struct {
 	}
 	First *int32
 	After *Cursor
-}) (*RunConnection, error) {
+}
+
+func fetchRunConnection(ctx context.Context, c *speedrun.Client, args FetchRunsArgs, extraOpts ...speedrun.FetchOption) (*RunConnection, error) {
 	var opts []speedrun.FetchOption
+	opts = append(opts, extraOpts...)
 	if args.Order != nil {
 		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
 	}
@@ -50,13 +57,13 @@ func (v *Viewer) Runs(ctx context.Context, args struct {
 		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
-	runs, pageInfo, err := v.client.ListRuns(ctx, opts...)
+	runs, pageInfo, err := c.ListRuns(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	return &RunConnection{
-		client:   v.client,
+		client:   c,
 		runs:     runs,
 		pageInfo: pageInfo,
 	}, nil

@@ -62,61 +62,12 @@ func (c *Category) Variables(ctx context.Context) ([]*Variable, error) {
 	return res, nil
 }
 
-func (c *Category) Runs(ctx context.Context, args struct {
-	Filter *struct {
-		User     *graphql.ID     `filter:"user"`
-		Guest    *string         `filter:"guest"`
-		Examiner *graphql.ID     `filter:"examiner"`
-		Game     *graphql.ID     `filter:"game"`
-		Level    *graphql.ID     `filter:"level"`
-		Category *graphql.ID     `filter:"category"`
-		Platform *graphql.ID     `filter:"platform"`
-		Region   *graphql.ID     `filter:"region"`
-		Emulated *bool           `filter:"emulated"`
-		Status   *RunStatusValue `filter:"status"`
-	}
-	Order *struct {
-		Field     *RunOrderField
-		Direction *speedrun.OrderDirection
-	}
-	First *int32
-	After *Cursor
-}) (*RunConnection, error) {
+func (c *Category) Runs(ctx context.Context, args FetchRunsArgs) (*RunConnection, error) {
 	if args.Filter != nil && args.Filter.Category != nil {
 		return nil, errors.New("cannot filter runs by category when reading from a specific category")
 	}
 
-	opts := []speedrun.FetchOption{
-		speedrun.WithFilter("category", c.Category.ID),
-	}
-
-	if args.Order != nil {
-		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
-	}
-	if args.Filter != nil {
-		opts = append(opts, speedrun.WithFilters(*args.Filter))
-	}
-	if args.First != nil {
-		opts = append(opts, speedrun.WithLimit(int(*args.First)))
-	}
-	if args.After != nil {
-		offset, err := args.After.GetOffset()
-		if err != nil {
-			return nil, err
-		}
-		opts = append(opts, speedrun.WithOffset(offset))
-	}
-
-	runs, pageInfo, err := c.client.ListRuns(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return &RunConnection{
-		client:   c.client,
-		runs:     runs,
-		pageInfo: pageInfo,
-	}, nil
+	return fetchRunConnection(ctx, c.client, args, speedrun.WithFilter("category", c.Category.ID))
 }
 
 type CategoryType speedrun.CategoryType
