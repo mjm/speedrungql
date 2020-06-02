@@ -193,6 +193,19 @@ func (u *User) Runs(ctx context.Context, args FetchRunsArgs) (*RunConnection, er
 	return fetchRunConnection(ctx, u.client, args, speedrun.WithFilter("user", u.User.ID))
 }
 
+func (u *User) PersonalBests(ctx context.Context) ([]*PlacedRun, error) {
+	bests, err := u.client.ListUserPersonalBests(ctx, u.User.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*PlacedRun
+	for _, run := range bests {
+		res = append(res, &PlacedRun{run, u.client})
+	}
+	return res, nil
+}
+
 type UserNames struct {
 	speedrun.UserNames
 }

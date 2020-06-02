@@ -28,3 +28,11 @@ func (c *Client) runKey(id string) string {
 	}
 	return fmt.Sprintf("%s/runs/%s", c.BaseURL, id)
 }
+
+func (c *Client) ListUserPersonalBests(ctx context.Context, userID string) ([]PlacedRun, error) {
+	var resp PlacedRunsResponse
+	if err := c.fetch(ctx, fmt.Sprintf("/users/%s/personal-bests", userID), &resp); err != nil {
+		return nil, err
+	}
+	return resp.Data, nil
+}

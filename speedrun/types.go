@@ -142,6 +142,10 @@ type Leaderboard struct {
 	Runs       []PlacedRun `json:"runs"`
 }
 
+type PlacedRunsResponse struct {
+	Data []PlacedRun `json:"data"`
+}
+
 type PlacedRun struct {
 	Place int  `json:"place"`
 	Run   *Run `json:"run"`

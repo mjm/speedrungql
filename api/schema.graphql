@@ -395,6 +395,8 @@ type User implements Node {
     first: Int
     after: Cursor
   ): RunConnection!
+
+  personalBests: [PlacedRun!]!
 }
 
 enum UserNameVariant {
