@@ -101,7 +101,16 @@ enum CategoryPlayersType {
 
 input GameFilter {
   name: String
-  # TODO add the remaining filters for games
+  abbreviation: String
+  released: Int
+  gameType: ID
+  platform: ID
+  region: ID
+  genre: ID
+  engine: ID
+  developer: ID
+  publisher: ID
+  moderator: ID
 }
 
 input GameOrder {
@@ -244,12 +253,26 @@ type Platform implements Node {
   rawID: String!
   name: String!
   released: Int!
+
+  games(
+    filter: GameFilter
+    order: GameOrder
+    first: Int
+    after: Cursor
+  ): GameConnection!
 }
 
 type Region implements Node {
   id: ID!
   rawID: String!
   name: String!
+
+  games(
+    filter: GameFilter
+    order: GameOrder
+    first: Int
+    after: Cursor
+  ): GameConnection!
 }
 
 input RunFilter {
@@ -397,6 +420,13 @@ type User implements Node {
   ): RunConnection!
 
   personalBests: [PlacedRun!]!
+
+  moderatedGames(
+    filter: GameFilter
+    order: GameOrder
+    first: Int
+    after: Cursor
+  ): GameConnection!
 }
 
 enum UserNameVariant {

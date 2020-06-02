@@ -13,25 +13,40 @@ import (
 	"github.com/mjm/speedrungql/speedrun"
 )
 
-func (v *Viewer) Games(ctx context.Context, args struct {
+func (v *Viewer) Games(ctx context.Context, args FetchGamesArgs) (*GameConnection, error) {
+	return fetchGameConnection(ctx, v.client, args)
+}
+
+type FetchGamesArgs struct {
 	Filter *struct {
-		Name *string
+		Name         *string     `filter:"name"`
+		Abbreviation *string     `filter:"abbreviation"`
+		Released     *int32      `filter:"released"`
+		GameType     *graphql.ID `filter:"gametype"`
+		Platform     *graphql.ID `filter:"platform"`
+		Region       *graphql.ID `filter:"region"`
+		Genre        *graphql.ID `filter:"genre"`
+		Engine       *graphql.ID `filter:"engine"`
+		Developer    *graphql.ID `filter:"developer"`
+		Publisher    *graphql.ID `filter:"publisher"`
+		Moderator    *graphql.ID `filter:"moderator"`
 	}
 	Order *struct {
-		Field     *string
+		Field     *GameOrderField
 		Direction *speedrun.OrderDirection
 	}
 	First *int32
 	After *Cursor
-}) (*GameConnection, error) {
+}
+
+func fetchGameConnection(ctx context.Context, c *speedrun.Client, args FetchGamesArgs, extraOpts ...speedrun.FetchOption) (*GameConnection, error) {
 	var opts []speedrun.FetchOption
+	opts = append(opts, extraOpts...)
 	if args.Order != nil {
-		opts = append(opts, speedrun.WithOrder(args.Order.Field, args.Order.Direction))
+		opts = append(opts, speedrun.WithOrder((*string)(args.Order.Field), args.Order.Direction))
 	}
 	if args.Filter != nil {
-		if args.Filter.Name != nil {
-			opts = append(opts, speedrun.WithFilter("name", *args.Filter.Name))
-		}
+		opts = append(opts, speedrun.WithFilters(args.Filter))
 	}
 	if args.First != nil {
 		opts = append(opts, speedrun.WithLimit(int(*args.First)))
@@ -44,17 +59,19 @@ func (v *Viewer) Games(ctx context.Context, args struct {
 		opts = append(opts, speedrun.WithOffset(offset))
 	}
 
-	games, pageInfo, err := v.client.ListGames(ctx, opts...)
+	games, pageInfo, err := c.ListGames(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	return &GameConnection{
-		client:   v.client,
+		client:   c,
 		games:    games,
 		pageInfo: pageInfo,
 	}, nil
 }
+
+type GameOrderField string
 
 type GameConnection struct {
 	client   *speedrun.Client
@@ -144,7 +161,7 @@ func (g *Game) Platforms(ctx context.Context) ([]*Platform, error) {
 
 	var res []*Platform
 	for _, plat := range plats {
-		res = append(res, &Platform{*plat})
+		res = append(res, &Platform{*plat, g.client})
 	}
 
 	return res, nil
@@ -158,7 +175,7 @@ func (g *Game) Regions(ctx context.Context) ([]*Region, error) {
 
 	var res []*Region
 	for _, reg := range regs {
-		res = append(res, &Region{*reg})
+		res = append(res, &Region{*reg, g.client})
 	}
 
 	return res, nil

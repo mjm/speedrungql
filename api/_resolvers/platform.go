@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/mjm/graphql-go"
 	"github.com/mjm/graphql-go/relay"
@@ -37,10 +38,11 @@ func (v *Viewer) Platforms(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	return &PlatformConnection{plats, pageInfo}, nil
+	return &PlatformConnection{v.client, plats, pageInfo}, nil
 }
 
 type PlatformConnection struct {
+	client    *speedrun.Client
 	platforms []*speedrun.Platform
 	pageInfo  *speedrun.PageInfo
 }
@@ -49,7 +51,7 @@ func (pc *PlatformConnection) Edges() []*PlatformEdge {
 	var edges []*PlatformEdge
 	for _, p := range pc.platforms {
 		edges = append(edges, &PlatformEdge{
-			Node: &Platform{*p},
+			Node: &Platform{*p, pc.client},
 		})
 	}
 	return edges
@@ -58,7 +60,7 @@ func (pc *PlatformConnection) Edges() []*PlatformEdge {
 func (pc *PlatformConnection) Nodes() []*Platform {
 	var nodes []*Platform
 	for _, p := range pc.platforms {
-		nodes = append(nodes, &Platform{*p})
+		nodes = append(nodes, &Platform{*p, pc.client})
 	}
 	return nodes
 }
@@ -77,6 +79,7 @@ func (pe *PlatformEdge) Cursor() *Cursor {
 
 type Platform struct {
 	speedrun.Platform
+	client *speedrun.Client
 }
 
 func (p *Platform) ID() graphql.ID {
@@ -85,4 +88,12 @@ func (p *Platform) ID() graphql.ID {
 
 func (p *Platform) RawID() string {
 	return p.Platform.ID
+}
+
+func (p *Platform) Games(ctx context.Context, args FetchGamesArgs) (*GameConnection, error) {
+	if args.Filter != nil && args.Filter.Platform != nil {
+		return nil, errors.New("cannot filter games by platform when reading from a specific platform")
+	}
+
+	return fetchGameConnection(ctx, p.client, args, speedrun.WithFilter("platform", p.Platform.ID))
 }

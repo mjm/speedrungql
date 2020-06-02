@@ -51,7 +51,7 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 			return nil, err
 		}
 		if plat != nil {
-			n = &Platform{*plat}
+			n = &Platform{*plat, r.client}
 		}
 	case "region":
 		reg, err := r.client.GetRegion(ctx, id)
@@ -59,7 +59,7 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 			return nil, err
 		}
 		if reg != nil {
-			n = &Region{*reg}
+			n = &Region{*reg, r.client}
 		}
 	case "run":
 		run, err := r.client.GetRun(ctx, id)

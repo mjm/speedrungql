@@ -206,6 +206,14 @@ func (u *User) PersonalBests(ctx context.Context) ([]*PlacedRun, error) {
 	return res, nil
 }
 
+func (u *User) ModeratedGames(ctx context.Context, args FetchGamesArgs) (*GameConnection, error) {
+	if args.Filter != nil && args.Filter.Moderator != nil {
+		return nil, errors.New("cannot filter games by moderator when reading from a specific user")
+	}
+
+	return fetchGameConnection(ctx, u.client, args, speedrun.WithFilter("moderator", u.User.ID))
+}
+
 type UserNames struct {
 	speedrun.UserNames
 }
