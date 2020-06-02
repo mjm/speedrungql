@@ -73,6 +73,27 @@ func fetchGameConnection(ctx context.Context, c *speedrun.Client, args FetchGame
 
 type GameOrderField string
 
+func (GameOrderField) ImplementsGraphQLType(name string) bool {
+	return name == "GameOrderField"
+}
+
+func (v *GameOrderField) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("GameOrderField value was not a string")
+	}
+
+	switch s {
+	case "NAME_INT":
+		*v = "name.int"
+	case "NAME_JAP":
+		*v = "name.jap"
+	default:
+		*v = GameOrderField(strings.ToLower(s))
+	}
+	return nil
+}
+
 type GameConnection struct {
 	client   *speedrun.Client
 	games    []*speedrun.Game
@@ -178,6 +199,19 @@ func (g *Game) Regions(ctx context.Context) ([]*Region, error) {
 		res = append(res, &Region{*reg, g.client})
 	}
 
+	return res, nil
+}
+
+func (g *Game) Genres(ctx context.Context) ([]*Genre, error) {
+	gens, err := g.client.GetGenres(ctx, g.Game.Genres)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Genre
+	for _, gen := range gens {
+		res = append(res, &Genre{*gen, g.client})
+	}
 	return res, nil
 }
 

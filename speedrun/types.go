@@ -36,6 +36,7 @@ type Game struct {
 	Ruleset      GameRuleset                  `json:"ruleset"`
 	Platforms    []string                     `json:"platforms"`
 	Regions      []string                     `json:"regions"`
+	Genres       []string                     `json:"genres"`
 	Moderators   map[string]GameModeratorRole `json:"moderators"`
 }
 
@@ -102,6 +103,16 @@ const (
 	PlayersExactly CategoryPlayersType = "exactly"
 	PlayersUpTo    CategoryPlayersType = "up-to"
 )
+
+type GenresResponse struct {
+	Data       []*Genre  `json:"data"`
+	Pagination *PageInfo `json:"pagination"`
+}
+
+type Genre struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
 
 type LevelsResponse struct {
 	Data []*Level `json:"data"`

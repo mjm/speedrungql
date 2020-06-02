@@ -19,6 +19,12 @@ type Viewer {
     after: Cursor
   ): GameConnection!
 
+  genres(
+    order: GenreOrder
+    first: Int
+    after: Cursor
+  ): GenreConnection!
+
   platforms(
     order: PlatformOrder
     first: Int
@@ -149,6 +155,7 @@ type Game implements Node {
 
   platforms: [Platform!]!
   regions: [Region!]!
+  genres: [Genre!]!
   moderators: [GameModerator!]!
 
   categories: [Category!]!
@@ -192,6 +199,39 @@ type GameModerator {
 enum GameModeratorRole {
   MODERATOR
   SUPER_MODERATOR
+}
+
+input GenreOrder {
+  field: GenreOrderField
+  direction: OrderDirection
+}
+
+enum GenreOrderField {
+  NAME
+}
+
+type GenreConnection {
+  edges: [GenreEdge!]!
+  nodes: [Genre!]!
+  pageInfo: PageInfo!
+}
+
+type GenreEdge {
+  node: Genre!
+  cursor: Cursor
+}
+
+type Genre implements Node {
+  id: ID!
+  rawID: String!
+  name: String!
+
+  games(
+    filter: GameFilter
+    order: GameOrder
+    first: Int
+    after: Cursor
+  ): GameConnection!
 }
 
 input VariableFilter {
