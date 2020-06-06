@@ -22,6 +22,16 @@ type Link struct {
 	URI string `json:"uri"`
 }
 
+type EnginesResponse struct {
+	Data       []*Engine `json:"data"`
+	Pagination *PageInfo `json:"pagination"`
+}
+
+type Engine struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type GamesResponse struct {
 	Data       []*Game   `json:"data"`
 	Pagination *PageInfo `json:"pagination"`
@@ -37,6 +47,7 @@ type Game struct {
 	Platforms    []string                     `json:"platforms"`
 	Regions      []string                     `json:"regions"`
 	Genres       []string                     `json:"genres"`
+	Engines      []string                     `json:"engines"`
 	Moderators   map[string]GameModeratorRole `json:"moderators"`
 }
 

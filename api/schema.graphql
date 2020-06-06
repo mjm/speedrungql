@@ -105,6 +105,12 @@ enum CategoryPlayersType {
   UP_TO
 }
 
+type Engine implements Node {
+  id: ID!
+  rawID: String!
+  name: String!
+}
+
 input GameFilter {
   name: String
   abbreviation: String
@@ -156,6 +162,7 @@ type Game implements Node {
   platforms: [Platform!]!
   regions: [Region!]!
   genres: [Genre!]!
+  engines: [Engine!]!
   moderators: [GameModerator!]!
 
   categories: [Category!]!

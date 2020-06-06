@@ -215,6 +215,19 @@ func (g *Game) Genres(ctx context.Context) ([]*Genre, error) {
 	return res, nil
 }
 
+func (g *Game) Engines(ctx context.Context) ([]*Engine, error) {
+	engs, err := g.client.GetEngines(ctx, g.Game.Engines)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*Engine
+	for _, eng := range engs {
+		res = append(res, &Engine{*eng, g.client})
+	}
+	return res, nil
+}
+
 func (g *Game) Moderators() []*GameModerator {
 	var gms []*GameModerator
 	for userID, role := range g.Game.Moderators {

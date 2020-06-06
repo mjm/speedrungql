@@ -1,0 +1,29 @@
+{
+  "name": "Speedrun",
+  "schemaPath": "schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Local": {
+        "url": "http://localhost:8080/graphql",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      },
+      "Staging": {
+        "url": "https://speedrungql.mjm.now.sh/api/graphql",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      },
+      "Production": {
+        "url": "https://speedrungql.now.sh/api/graphql",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      }
+    }
+  }
+}

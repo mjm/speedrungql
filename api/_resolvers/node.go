@@ -29,6 +29,14 @@ func (r *Resolvers) Node(ctx context.Context, args struct{ ID graphql.ID }) (*No
 		if cat != nil {
 			n = &Category{*cat, r.client}
 		}
+	case "engine":
+		eng, err := r.client.GetEngine(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if eng != nil {
+			n = &Engine{*eng, r.client}
+		}
 	case "game":
 		game, err := r.client.GetGame(ctx, id)
 		if err != nil {
@@ -109,6 +117,11 @@ type Node struct {
 func (n *Node) ToCategory() (*Category, bool) {
 	c, ok := n.nodeResolver.(*Category)
 	return c, ok
+}
+
+func (n *Node) ToEngine() (*Engine, bool) {
+	e, ok := n.nodeResolver.(*Engine)
+	return e, ok
 }
 
 func (n *Node) ToGame() (*Game, bool) {
