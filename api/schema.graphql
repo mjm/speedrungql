@@ -9,6 +9,8 @@ type Query {
   viewer: Viewer
 
   node(id: ID!): Node
+
+  game(id: ID!): Game
 }
 
 type Viewer {

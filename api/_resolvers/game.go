@@ -13,6 +13,20 @@ import (
 	"github.com/mjm/speedrungql/speedrun"
 )
 
+func (r *Resolvers) Game(ctx context.Context, args struct{ ID graphql.ID }) (*Game, error) {
+	var id string
+	if err := relay.UnmarshalSpec(args.ID, &id); err != nil {
+		return nil, err
+	}
+
+	game, err := r.client.GetGame(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Game{*game, r.client}, nil
+}
+
 func (v *Viewer) Games(ctx context.Context, args FetchGamesArgs) (*GameConnection, error) {
 	return fetchGameConnection(ctx, v.client, args)
 }
