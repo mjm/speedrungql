@@ -49,6 +49,7 @@ type Game struct {
 	Genres       []string                     `json:"genres"`
 	Engines      []string                     `json:"engines"`
 	Moderators   map[string]GameModeratorRole `json:"moderators"`
+	Assets       map[GameAssetKind]*GameAsset `json:"assets"`
 }
 
 type GameNames struct {
@@ -80,6 +81,29 @@ const (
 	Moderator      GameModeratorRole = "moderator"
 	SuperModerator GameModeratorRole = "super-moderator"
 )
+
+type GameAssetKind string
+
+const (
+	AssetLogo         GameAssetKind = "logo"
+	AssetCoverTiny    GameAssetKind = "cover-tiny"
+	AssetCoverSmall   GameAssetKind = "cover-small"
+	AssetCoverMedium  GameAssetKind = "cover-medium"
+	AssetCoverLarge   GameAssetKind = "cover-large"
+	AssetIcon         GameAssetKind = "icon"
+	AssetTrophyFirst  GameAssetKind = "trophy-1st"
+	AssetTrophySecond GameAssetKind = "trophy-2nd"
+	AssetTrophyThird  GameAssetKind = "trophy-3rd"
+	AssetTrophyFourth GameAssetKind = "trophy-4th"
+	AssetBackground   GameAssetKind = "background"
+	AssetForeground   GameAssetKind = "foreground"
+)
+
+type GameAsset struct {
+	URI    string `json:"uri"`
+	Width  int32  `json:"width"`
+	Height int32  `json:"height"`
+}
 
 type CategoriesResponse struct {
 	Data []*Category `json:"data"`

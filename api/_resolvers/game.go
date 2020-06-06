@@ -244,6 +244,33 @@ func (g *Game) Moderators() []*GameModerator {
 	return gms
 }
 
+func (g *Game) Assets() []*GameAsset {
+	var assets []*GameAsset
+	for kind, asset := range g.Game.Assets {
+		if asset == nil {
+			continue
+		}
+
+		assets = append(assets, &GameAsset{*asset, GameAssetKind(kind)})
+	}
+
+	sort.Slice(assets, func(i, j int) bool {
+		return assets[i].Kind < assets[j].Kind
+	})
+	return assets
+}
+
+func (g *Game) Asset(args struct {
+	Kind GameAssetKind
+}) *GameAsset {
+	asset := g.Game.Assets[speedrun.GameAssetKind(args.Kind)]
+	if asset == nil {
+		return nil
+	}
+
+	return &GameAsset{*asset, args.Kind}
+}
+
 func (g *Game) Categories(ctx context.Context) ([]*Category, error) {
 	cats, err := g.client.ListGameCategories(ctx, g.Game.ID)
 	if err != nil {
@@ -389,4 +416,84 @@ func (v *GameModeratorRole) UnmarshalGraphQL(input interface{}) error {
 	}
 
 	return nil
+}
+
+type GameAssetKind speedrun.GameAssetKind
+
+func (GameAssetKind) ImplementsGraphQLType(name string) bool {
+	return name == "GameAssetKind"
+}
+
+func (v GameAssetKind) String() string {
+	switch speedrun.GameAssetKind(v) {
+	case speedrun.AssetLogo:
+		return "LOGO"
+	case speedrun.AssetCoverTiny:
+		return "COVER_TINY"
+	case speedrun.AssetCoverSmall:
+		return "COVER_SMALL"
+	case speedrun.AssetCoverMedium:
+		return "COVER_MEDIUM"
+	case speedrun.AssetCoverLarge:
+		return "COVER_LARGE"
+	case speedrun.AssetIcon:
+		return "ICON"
+	case speedrun.AssetTrophyFirst:
+		return "TROPHY_1ST"
+	case speedrun.AssetTrophySecond:
+		return "TROPHY_2ND"
+	case speedrun.AssetTrophyThird:
+		return "TROPHY_3RD"
+	case speedrun.AssetTrophyFourth:
+		return "TROPHY_4TH"
+	case speedrun.AssetBackground:
+		return "BACKGROUND"
+	case speedrun.AssetForeground:
+		return "FOREGROUND"
+	default:
+		return ""
+	}
+}
+
+func (v *GameAssetKind) UnmarshalGraphQL(input interface{}) error {
+	s, ok := input.(string)
+	if !ok {
+		return errors.New("GameAssetKind value was not a string")
+	}
+
+	switch s {
+	case "LOGO":
+		*v = GameAssetKind(speedrun.AssetLogo)
+	case "COVER_TINY":
+		*v = GameAssetKind(speedrun.AssetCoverTiny)
+	case "COVER_SMALL":
+		*v = GameAssetKind(speedrun.AssetCoverSmall)
+	case "COVER_MEDIUM":
+		*v = GameAssetKind(speedrun.AssetCoverMedium)
+	case "COVER_LARGE":
+		*v = GameAssetKind(speedrun.AssetCoverLarge)
+	case "ICON":
+		*v = GameAssetKind(speedrun.AssetIcon)
+	case "TROPHY_1ST":
+		*v = GameAssetKind(speedrun.AssetTrophyFirst)
+	case "TROPHY_2ND":
+		*v = GameAssetKind(speedrun.AssetTrophySecond)
+	case "TROPHY_3RD":
+		*v = GameAssetKind(speedrun.AssetTrophyThird)
+	case "TROPHY_4TH":
+		*v = GameAssetKind(speedrun.AssetTrophyFourth)
+	case "BACKGROUND":
+		*v = GameAssetKind(speedrun.AssetBackground)
+	case "FOREGROUND":
+		*v = GameAssetKind(speedrun.AssetForeground)
+	default:
+		return fmt.Errorf("unknown GameAssetKind value %q", s)
+	}
+
+	return nil
+}
+
+type GameAsset struct {
+	speedrun.GameAsset
+	Kind GameAssetKind
 }

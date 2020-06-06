@@ -165,6 +165,9 @@ type Game implements Node {
   engines: [Engine!]!
   moderators: [GameModerator!]!
 
+  assets: [GameAsset!]!
+  asset(kind: GameAssetKind!): GameAsset
+
   categories: [Category!]!
   levels: [Level!]!
   variables: [Variable!]!
@@ -206,6 +209,28 @@ type GameModerator {
 enum GameModeratorRole {
   MODERATOR
   SUPER_MODERATOR
+}
+
+type GameAsset {
+  kind: GameAssetKind!
+  uri: String!
+  width: Int!
+  height: Int!
+}
+
+enum GameAssetKind {
+  LOGO
+  COVER_TINY
+  COVER_SMALL
+  COVER_MEDIUM
+  COVER_LARGE
+  ICON
+  TROPHY_1ST
+  TROPHY_2ND
+  TROPHY_3RD
+  TROPHY_4TH
+  BACKGROUND
+  FOREGROUND
 }
 
 input GenreOrder {
